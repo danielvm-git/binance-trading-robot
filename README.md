@@ -68,4 +68,4 @@ use this command:
 firebase init hosting
 
 That's it!
-Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of the service is your webhook
+Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of the service is your webhook. Just use it on your Trading View
