@@ -53,18 +53,16 @@ npm i -D firebase-tools
 Clone my at https://github.com/amfchef/binance-trading-bot and put in your project folder
 #### Put your keys
 Edit the config files and put your keys on
-1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
-2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 
+1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+
+2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 #### create de build
 gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
-
 #### deploy new build
 gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
-
 #### Create firebase project binance-trading-robot
 go to https://firebase.google.com/ and create a new project to host the role thing
-
 #### init firebase hosting
 use this command:
 firebase init hosting
