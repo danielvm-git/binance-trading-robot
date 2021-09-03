@@ -23,9 +23,9 @@ gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fi
 #### deployed new build
 gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
 #### Created firebase project binance-trading-robot
-go to https://firebase.google.com/ and create a new project to host the role thing
+went to https://firebase.google.com/ and create a new project to host the role thing
 #### init firebase hosting
-use this command:
+used this command:
 firebase init hosting
 
 
