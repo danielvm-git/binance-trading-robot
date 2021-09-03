@@ -70,4 +70,5 @@ use this command:
 firebase init hosting
 
 That's it!
-Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of the service is your webhook. Just use it on your Trading View
+Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of the service is your webhook. Just use it on your TradingView with MM and this strings on the message of the alert:
+ https://github.com/danielvm-git/binance-trading-robot/blob/main/server/src/Webhook/Webhook%20samples.txt
