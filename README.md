@@ -45,15 +45,23 @@ you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 gcloud auth login
 ```
 #### initialize gcloud
-give it a name
-
-select your email
-
-create a new project
-
 ```bash
 gcloud init
 ```
+
+\Pick configuration to use:
+   Create a new configuration
+
+Choose the account you would like to use to perform operations for 
+this configuration:
+   select your email
+
+Pick cloud project to use: 
+   create a new project
+
+Enter a Project ID
+   give it a name
+
 
 #### Enable Cloud Buid API 
 you can find it searching on https://console.cloud.google.com/
@@ -67,6 +75,9 @@ npm i -D firebase-tools
 ## Let's get started
 #### Clone my bundle
 Clone my code bundle at https://github.com/amfchef/binance-trading-bot and put in your project folder
+```bash
+git clone https://github.com/amfchef/binance-trading-bot
+```
 #### Put your keys
 Edit the config files and put your keys on
 
