@@ -21,15 +21,18 @@ Edited the config files and put my keys on
 #### created de build
 ```bash
 gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
-
+```
 #### deployed new build
+```bash
 gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
+```
 #### Created firebase project binance-trading-robot
 went to https://firebase.google.com/ and create a new project to host the role thing
 #### init firebase hosting
 used this command:
+```bash
 firebase init hosting
-
+```
 
 ## What you should do
 ### Before you start
@@ -38,9 +41,13 @@ The guy on the video is using https://code.visualstudio.com/ (recommended, I'm u
 #### Install Google Cloud SDK
 you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 #### login to gcloud
+```bash
 gcloud auth login
+```
 #### initialize gcloud
+```bash
 gcloud init
+```
     give it a name - 
     select your email
     create a new project -
@@ -49,9 +56,10 @@ you can find it searching on https://console.cloud.google.com/
 #### Enable Cloud Run API
 you can find it searching on https://console.cloud.google.com/
 ##### Install Firebase Tools
+```bash
 npm init -y
 npm i -D firebase-tools
-
+```
 ## Let's get started
 #### Clone my bundle
 Clone my code bundle at https://github.com/amfchef/binance-trading-bot and put in your project folder
@@ -62,14 +70,20 @@ Edit the config files and put your keys on
 
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 #### create de build
+```bash
 gcloud builds submit --tag gcr.io/binance-trading-robot/<put the name of your run function here>
+```
 #### deploy new build
+```bash
 gcloud run deploy --image gcr.io/binance-trading-robot/<put the name of your run function here>
+```
 #### Create firebase project binance-trading-robot
 go to https://firebase.google.com/ and create a new project to host the role thing
 #### init firebase hosting
 use this command:
+```bash
 firebase init hosting
+```
 
 That's it!
 Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of the service is your webhook. Just use it on your TradingView with MM and this strings on the message of the alert:
