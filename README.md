@@ -8,7 +8,7 @@ The idea is to run @amfchef's code on this structure instead of the presenter's 
 #### Downloaded the original code
 Cloned @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
 #### Moved the files
-Moved original files and replace the ones on your tutorial exercise. 
+Moved original files and replace the ones on my the application I built watching the video. 
 #### Created the Docker
 created docker file like you see on the video then you add this to the RUN line:  
 python-binance binance Werkzeug google-cloud google-cloud-bigquery google-cloud-secret-manager firebase-admin pandas pyarrow
