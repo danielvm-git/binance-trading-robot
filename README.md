@@ -4,13 +4,13 @@
 ## What I did
 ### Followed the video
 I Followed the video and built the application like you see on the video https://www.youtube.com/watch?v=t5EfITuFD9w
-The idea is to run @amfchef's code on this structure instead of the presenter's one
+The idea is to run @amfchef's code on this structure instead of the presenter's one. 
 #### Downloaded the original code
 Cloned @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
 #### Moved the files
-Moved original files and replace the ones on my the application I built watching the video. 
+Moved original files and replace the ones on my the application I built watching the video. Created the function binance-trading-robot-fire on Cloud Run
 #### Created the Docker
-created docker file like you see on the video then you add this to the RUN line:  
+Created docker file like you see on the video then you add this to the RUN line:  
 python-binance binance Werkzeug google-cloud google-cloud-bigquery google-cloud-secret-manager firebase-admin pandas pyarrow
 #### Put my keys
 Edited the config files and put my keys on
@@ -60,9 +60,9 @@ Edit the config files and put your keys on
 
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 #### create de build
-gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
+gcloud builds submit --tag gcr.io/binance-trading-robot/<put the name of your run function here>
 #### deploy new build
-gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
+gcloud run deploy --image gcr.io/binance-trading-robot/<put the name of your run function here>
 #### Create firebase project binance-trading-robot
 go to https://firebase.google.com/ and create a new project to host the role thing
 #### init firebase hosting
