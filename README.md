@@ -32,7 +32,7 @@ firebase init hosting
 ## What you should do
 ### Before you start
 #### Install a text editor or IDE
-The guy on the video is using https://code.visualstudio.com/ (recommended, I'm usind as well)
+The guy on the video is using https://code.visualstudio.com/ (recommended, I'm using as well)
 #### Install Google Cloud SDK
 you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 #### login to gcloud
