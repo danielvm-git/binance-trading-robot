@@ -45,9 +45,12 @@ you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 gcloud auth login
 ```
 #### initialize gcloud
-give it a name - 
+give it a name
+
 select your email
-create a new project -
+
+create a new project
+
 ```bash
 gcloud init
 ```
