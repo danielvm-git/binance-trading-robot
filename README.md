@@ -89,6 +89,7 @@ Guarantee that you:
 enable billing for the project
 enable Cloud Build API
 Cloud Run API
+added the security rule Secret Manager Accessor for yor compute@developer.gserviceaccount.com
 #### create de build
 First go to your server folder
 ```bash
