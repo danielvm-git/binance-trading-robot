@@ -1,7 +1,7 @@
-API_KEY = '6XvWbD5k3tyX0JKgVxnG0JW3FKjUxVJiDgRYFT3bDfp4LjT1h308tfutLG0rMcyC'
-API_SECRET = 'Far7usN6XrvyFRsyh6yJu7Krt1hlpPM6ulkcxP7iPcgZOBB1P9ANmslJM6c0rlu4'
+API_KEY = 'put you key here'
+API_SECRET = 'put you key here'
 
-WEBHOOK_PASSWORD = 'big136'
+WEBHOOK_PASSWORD = 'put you key here'
 
 # Not developed yet :)
 EMAIL = ""
