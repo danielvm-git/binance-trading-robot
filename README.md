@@ -6,7 +6,7 @@
 I Followed the video and built the application like you see on the video https://www.youtube.com/watch?v=t5EfITuFD9w
 The idea is to run @amfchef's code on this structure instead of the presenter's one
 #### Downloaded the original code
-Cloneed @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
+Cloned @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
 #### Moved the files
 Moved original files and replace the ones on your tutorial exercise. 
 #### Created the Docker
