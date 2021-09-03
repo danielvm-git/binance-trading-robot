@@ -85,6 +85,11 @@ Edit the config files and put your keys on
 
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 #### create de build
+First go to your server folder
+```bash
+cd server
+```
+And than, inside the folder you execute this command
 ```bash
 gcloud builds submit --tag gcr.io/binance-trading-robot/<put the name of your run function here>
 ```
