@@ -45,12 +45,13 @@ you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 gcloud auth login
 ```
 #### initialize gcloud
+give it a name - 
+select your email
+create a new project -
 ```bash
 gcloud init
 ```
-    give it a name - 
-    select your email
-    create a new project -
+
 #### Enable Cloud Buid API 
 you can find it searching on https://console.cloud.google.com/
 #### Enable Cloud Run API
