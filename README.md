@@ -19,7 +19,9 @@ Edited the config files and put my keys on
 
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 #### created de build
+˜˜˜bash
 gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
+˜˜˜
 #### deployed new build
 gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
 #### Created firebase project binance-trading-robot
