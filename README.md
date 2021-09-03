@@ -13,8 +13,10 @@ Moved original files and replace the ones on my the application I built watching
 created docker file like you see on the video then you add this to the RUN line:  
 python-binance binance Werkzeug google-cloud google-cloud-bigquery google-cloud-secret-manager firebase-admin pandas pyarrow
 #### Put my keys
-Edit the config files and put my keys on
+Edited the config files and put my keys on
+
 1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 #### created de build
 gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
