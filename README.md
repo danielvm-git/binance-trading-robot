@@ -51,8 +51,8 @@ npm init -y
 npm i -D firebase-tools
 
 ## Let's get started
-#### Clone my code
-Clone my at https://github.com/amfchef/binance-trading-bot and put in your project folder
+#### Clone my bundle
+Clone my code bundle at https://github.com/amfchef/binance-trading-bot and put in your project folder
 #### Put your keys
 Edit the config files and put your keys on
 
