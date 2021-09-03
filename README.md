@@ -60,3 +60,4 @@ use this command:
 firebase init hosting
 
 That's it!
+Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of 
