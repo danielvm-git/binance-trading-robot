@@ -1,0 +1,9 @@
+API_KEY = '6XvWbD5k3tyX0JKgVxnG0JW3FKjUxVJiDgRYFT3bDfp4LjT1h308tfutLG0rMcyC'
+API_SECRET = 'Far7usN6XrvyFRsyh6yJu7Krt1hlpPM6ulkcxP7iPcgZOBB1P9ANmslJM6c0rlu4'
+
+WEBHOOK_PASSWORD = 'big136'
+
+# Not developed yet :)
+EMAIL = ""
+PASSWORD = ""
+

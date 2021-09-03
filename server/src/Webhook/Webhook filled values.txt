@@ -1,0 +1,9 @@
+This is an example of what a filled dict looks like when TV sends the message to the bot
+{
+        "signal": "ENTRY LONG",
+        "interval": 60,
+        "ticker": "ADAUSDT",
+        "entryprice": 2.81,
+        "stopprice": 3.8,
+        "password": "my_password"
+}

@@ -1,0 +1,34 @@
+#Install Google Cloud SDK
+https://cloud.google.com/sdk/docs/quickstart
+
+#Install VS Code
+https://code.visualstudio.com/
+
+#Install Firebase Tools
+npm init -y
+npm i -D firebase-tools
+
+#login to gcloud
+gcloud auth login
+
+#initialize gcloud
+gcloud init
+    give it a name - binance-trading-robot
+    select your email
+    create a new project - binance-trading-robot
+
+#Enable Cloud Buid API through https://console.cloud.google.com/
+#Enable Cloud Run API through https://console.cloud.google.com/
+
+#create de build
+gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
+
+#deploy new build
+gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
+
+#Create firebase project binance-trading-robot
+https://firebase.google.com/
+
+Reference videos ===============
+follow this tutorial to host your flask aplication on firebase hosting
+https://www.youtube.com/watch?v=t5EfITuFD9w
