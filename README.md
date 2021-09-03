@@ -49,7 +49,7 @@ gcloud auth login
 gcloud init
 ```
 
-\Pick configuration to use:
+Pick configuration to use:
    Create a new configuration
 
 Choose the account you would like to use to perform operations for 
@@ -67,29 +67,38 @@ Enter a Project ID
 you can find it searching on https://console.cloud.google.com/
 #### Enable Cloud Run API
 you can find it searching on https://console.cloud.google.com/
-##### Install Firebase Tools
-```bash
-npm init -y
-npm i -D firebase-tools
-```
+
 ## Let's get started
 #### Clone my bundle
 Clone my code bundle at https://github.com/amfchef/binance-trading-bot and put in your project folder
 ```bash
 git clone https://github.com/amfchef/binance-trading-bot
 ```
+#### Access police
+
+Guarantee that you:
+
+enable billing for the project
+
+enable Cloud Build API
+
+enable Cloud Run API
+
+enable Secret Manager
+
+create key and secret on Secret Manager
+
+added the security rule Secret Manager Accessor for yor compute@developer.gserviceaccount.com
+
+edit calculate.py with your secret address
+
 #### Put your keys
 Edit the config files and put your keys on
 
 1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
 
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
-#### Access police
-Guarantee that you:
-enable billing for the project
-enable Cloud Build API
-Cloud Run API
-added the security rule Secret Manager Accessor for yor compute@developer.gserviceaccount.com
+
 #### create de build
 First go to your server folder
 ```bash
@@ -105,6 +114,21 @@ gcloud run deploy --image gcr.io/binance-trading-robot/<put the name of your run
 ```
 #### Create firebase project binance-trading-robot
 go to https://firebase.google.com/ and create a new project to host the role thing
+
+Then go back to your project main folder
+
+```bash
+cd ..
+```
+And than, inside the folder you execute this command
+```bash
+npm init
+```
+and then this
+```bash
+npm i -D firebase-tools
+```
+
 #### init firebase hosting
 use this command:
 ```bash
