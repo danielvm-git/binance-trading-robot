@@ -84,6 +84,11 @@ Edit the config files and put your keys on
 1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
 
 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+#### Access police
+Guarantee that you:
+enable billing for the project
+enable Cloud Build API
+Cloud Run API
 #### create de build
 First go to your server folder
 ```bash
