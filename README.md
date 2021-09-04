@@ -29,16 +29,13 @@ xcode-select --install
     * 19.2.3
   * NVM:
     * 0.38.0
-
+  * GIT:
+    * 2.30.1
 
 ## Installing
 #### Install a text editor or IDE
 The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
 
-#### Install Google Cloud SDK
-you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
-
-#### Install missing packages
 #### Check what you have
 * check your JAVA version on Terminal or CMD
 ```bash
@@ -64,14 +61,16 @@ npm --version
 ```bash
 pip3 --version
 ````
+* check your GIT version
+```bash
+git --version
+````
+
+#### Install missing packages
 * Install whatever package above you don't have. You can find the best way to install Java on google
 
-#### Install PIP
-```bash
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-````
-#### Install Git
-`pip3 install git`
+#### Install Google Cloud SDK
+you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 
 #### Install virtual environment
 * Change directory to your project
