@@ -8,19 +8,19 @@ I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrate
 ## Getting Started
 ### Dependencies
 #### Check what you have
-* check you JAVA version on Terminal or CMD
+* check your JAVA version on Terminal or CMD
 ```bash
 java -version
 ```
-* check you PYTHON version on Terminal or CMD
+* check your PYTHON version
 ```bash
 python3 --version
 ```
-* check you NODE version on Terminal or CMD
+* check your NODE version
 ```bash
 node --version
 ```
-* check you NPM version on Terminal or CMD
+* check your NPM version
 ```bash
 npm --version
 ````
