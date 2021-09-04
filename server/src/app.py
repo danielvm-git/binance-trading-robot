@@ -1,16 +1,26 @@
 from calculate import Calculate
 from binance.enums import *
 from binance.client import Client
-import json, config
-
+from google.cloud import secretmanager
+import json
 from werkzeug.utils import redirect
 from flask import Flask, request, render_template
 import datetime
-from binance.client import Client
+import logging
 
 calculate = Calculate()
 
 app = Flask(__name__)
+log = logging.getLogger(__name__)
+
+secretManagerClient = secretmanager.SecretManagerServiceClient()
+trade_password = "trade_password_binance_margin"
+project_id = "binance-trading-robot"
+password_request = {"name": f"projects/101254323285/secrets/trade_password_binance_margin/versions/latest"}
+
+password_response = secretManagerClient.access_secret_version(password_request)
+
+PASSWORD_string = password_response.payload.data.decode("UTF-8")
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -22,22 +32,20 @@ def welcome():
     all_trades = calculate.get_all_trades()
     total_profit = int(calculate.get_total_profit())
     usdt_balance = calculate.get_usdt_balance()
-
     if request.method == "POST":
         data = request.form
         password = data["password"]
 
-        if password == config.WEBHOOK_PASSWORD:
+        if password == PASSWORD_string:
             calculate.append_running_trades(data["coinpair"], int(data["interval"]), float(data["quantity"]),
                                             data["portion_size"], data["side"],
                                             sl_id="manual trades, No SL could be set")
-
             return redirect('/')
         else:
             return redirect('/')
     return render_template('index.html', current_profit=current_profit, usdt_balance=usdt_balance,
-                           all_trades=all_trades, total_profit=total_profit, current_year=current_year,
-                           running_trades=running_trades)
+                            all_trades=all_trades, total_profit=total_profit, current_year=current_year,
+                            running_trades=running_trades)
 
 
 if __name__ == "__main__":
@@ -51,11 +59,11 @@ def webhook():
     try:
         data = json.loads(request.data)
     except Exception as e:
-        print("an exception occured - {}".format(e))
+        log.error("an exception occured - {}".format(e))
         return {"code": "error",
                 "message": "Unable to read webhook"}
 
-    if data['password'] != config.WEBHOOK_PASSWORD:
+    if data['password'] != PASSWORD_string:
         return {
             "code": "error",
             "message": "Nice try, invalid passphrase"
@@ -90,7 +98,7 @@ def webhook():
             quantity = calculate.convert_portion_size_to_quantity(
                 coin_pair, portion_size)
 
-            print("SL ", sl_percent, "portionS ", portion_size, "Q ", quantity)
+            log.error("SL ", sl_percent, "portionS ", portion_size, "Q ", quantity)
             side = "SELL"
             order_response = calculate.short_order(side, quantity,
                                                    coin_pair, interval, portion_size, stop_price)
@@ -117,7 +125,7 @@ def webhook():
             "message": "order executed"
         }
     else:
-        print("order failed")
+        log.error("order failed")
 
         return {
             "code": "error",
