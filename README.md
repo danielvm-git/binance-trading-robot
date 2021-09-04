@@ -81,7 +81,7 @@ cd "your_project" folder
 
 * Install virtual environment
 ```bash
-pip install python3-venv
+pip3 install python3-venv
 ````
 
 #### Clone my bundle
