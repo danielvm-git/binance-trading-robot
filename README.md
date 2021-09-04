@@ -73,40 +73,41 @@ git --version
 #### Install Google Cloud SDK
 you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 
+#### Clone my bundle
+
+* Change directory to your project
+
+```bash
+cd "your_project" folder
+````
+
+* Clone my repo
+
+```bash
+git clone https://github.com/danielvm-git/binance-trading-robot
+````
+
 #### Install virtual environment
 * Change directory to your project
 ```bash
 cd "your_project" folder
 ````
-
 * Install virtual environment
 ```bash
 pip3 install python3-venv
 ````
-
-#### Clone my bundle
-Clone my code bundle at https://github.com/danielvm-git/binance-trading-robot and put in your project folder
-
-Change directory to your project
-
-`cd "your_project" folder`
-
-Clone my repo
-
-`git clone https://github.com/danielvm-git/binance-trading-robot`
-
-Create a virtuel environment
-
-`virtualenv venv` 
-
-Activate virtuel environment
-
-`source venv/bin/activate`
-
-Install dependencies
-
-`pip3 install -r requirements.txt`
-
+* Create a virtuel environment
+```bash
+virtualenv venv 
+````
+* Activate virtuel environment
+```bash
+source venv/bin/activate
+````
+* Install dependencies
+```bash
+pip3 install -r requirements.txt
+````
 
 #### login to gcloud
 ```bash
