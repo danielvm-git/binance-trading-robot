@@ -11,6 +11,34 @@ I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrate
 
 ## Getting Started
 ### Dependencies
+
+* My OS is OSX_BigSur so I need [Command Line Tools](https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) (just for mac)
+```bash
+xcode-select --install
+````
+* I'm using these versions on it: 
+  * PYTHON: 
+    * 3.8.2 
+  * JAVA:
+    * 16.0.2
+  * NODE:
+    * 10.24.1 (didn't work with latest version 16. Recommend to use [nvm](https://github.com/nvm-sh/nvm) to install the desired node version) 
+  * NPM:
+    * 7.21.1 
+  * PIP:
+    * 19.2.3
+  * NVM:
+    * 0.38.0
+
+
+## Installing
+#### Install a text editor or IDE
+The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
+
+#### Install Google Cloud SDK
+you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
+
+#### Install missing packages
 #### Check what you have
 * check your JAVA version on Terminal or CMD
 ```bash
@@ -32,44 +60,17 @@ node --version
 ```bash
 npm --version
 ````
-* check your NPM version
+* check your PIP version
 ```bash
 pip3 --version
 ````
-
-## Installing
-#### Install a text editor or IDE
-The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
-
-#### Install Google Cloud SDK
-you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
-
-#### Install missing packages
-* Install whatever package above you don't have. You can find the best way to do that on google
-* My OS is OSX_BigSur so I need [Command Line Tools](https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) (just for mac)
-```bash
-xcode-select --install
-````
-* I'm using these versions on it: 
-  * PYTHON: 
-    * 3.8.2 
-  * JAVA:
-    * 16.0.2
-  * NODE:
-    * 10.24.1 (didn't work with latest version 16. Recommend to use [nvm](https://github.com/nvm-sh/nvm) to install the desired node version) 
-  * NPM:
-    * 7.21.1 
-  * PIP:
-    * 19.2.3
-  * NVM:
-    * 0.38.0
+* Install whatever package above you don't have. You can find the best way to install Java on google
 
 #### Install PIP
 ```bash
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 ````
 #### Install Git
-
 `pip3 install git`
 
 #### Install virtual environment
@@ -103,7 +104,6 @@ Activate virtuel environment
 Install dependencies
 
 `pip install -r requirements.txt`
-
 
 
 #### login to gcloud
