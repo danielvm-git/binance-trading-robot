@@ -1,4 +1,7 @@
 # binance-trading-robot
+[![Project Version][version-image]][version-url]
+[![Frontend][Frontend-image]][Frontend-url]
+[![Backend][Backend-image]][Backend-url]
  @amfchef binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker
  
 ## What I did
