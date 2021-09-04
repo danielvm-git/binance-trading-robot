@@ -188,7 +188,7 @@ firebase init hosting
 
 ## Version History
 
-* 0.1
+* 0.0.1
     * Initial Release
 
 ## License
