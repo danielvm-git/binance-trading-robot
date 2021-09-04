@@ -182,8 +182,9 @@ firebase init hosting
  
 ## Authors
 
-[@amfchef](https://github.com/amfchef) 
-[@danielvm-git](https://github.com/danielvm-git)
+[@amfchef](https://github.com/amfchef) - Original code
+ 
+[@danielvm-git](https://github.com/danielvm-git) - Contributor
 
 ## Version History
 
