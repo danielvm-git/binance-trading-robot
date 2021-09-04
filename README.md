@@ -16,7 +16,7 @@ I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrate
 ```bash
 xcode-select --install
 ````
-* I'm using these versions on it: 
+* I'm using these packages on it: 
   * PYTHON: 
     * 3.8.2 
   * JAVA:
