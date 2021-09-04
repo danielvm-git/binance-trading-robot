@@ -1,4 +1,8 @@
 # binance-trading-robot
+[![Project Version][version-image]][version-url]
+[![Frontend][Frontend-image]][Frontend-url]
+[![Backend][Backend-image]][Backend-url]
+
 The objective of this project is to create a cryptocurrency buying and selling robot to operate from signals sent by TradingView.com indicators
 
 ## Description
@@ -191,7 +195,7 @@ firebase init hosting
 ## Version History
 
 * 0.0.1
-    * Initial Release
+    * Initial work
 
 ## License
 
@@ -199,4 +203,21 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 
 ## Acknowledgments
 Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
+
+## Contributing
+
+1. Fork it (<https://github.com/yourname/yourproject/fork>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
+
+<!-- Markdown link & img dfn's -->
+
+[version-image]: https://img.shields.io/badge/Version-0.0.1-brightgreen?style=for-the-badge&logo=appveyor
+[version-url]: https://img.shields.io/badge/version-0.0.1-green
+[Frontend-image]: https://img.shields.io/badge/Frontend-Bootstrap-blue?style=for-the-badge
+[Frontend-url]: https://img.shields.io/badge/Frontend-Bootstrap-blue?style=for-the-badge
+[Backend-image]: https://img.shields.io/badge/Backend-Python-important?style=for-the-badge
+[Backend-url]: https://img.shields.io/badge/Backend-Python-important?style=for-the-badge
 
