@@ -133,9 +133,15 @@ use this command:
 ```bash
 firebase init hosting
 ```
+
+## Running the tests
 That's it!
-Go to the https://console.cloud.google.com/ -> Cloud Run and the adress of the service is your webhook. Just use it on your TradingView with MM and this strings on the message of the alert:
- https://github.com/danielvm-git/binance-trading-robot/blob/main/server/src/Webhook/Webhook%20samples.txt
+Go to [Google Cloud Console](https://console.cloud.google.com/) -> Cloud Run and the adress of the service created is your webhook. Just use it on your TradingView with MM indicator
+ 
+You can also use [Insominia](https://insomnia.rest/) to simulate TradingView sending a POST to your webhook
+
+Find examples of how the json shold be strectured [here](https://github.com/danielvm-git/binance-trading-robot/tree/main/server/src/Webhook)
+The same json shold be used inside you alert on TradingView
 
 ## Help
 ### What I did to get here 
@@ -173,6 +179,7 @@ used this command:
 firebase init hosting
 ```
 
+ 
 ## Authors
 
 [@amfchef](https://github.com/amfchef) 
