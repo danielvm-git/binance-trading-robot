@@ -210,7 +210,7 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 [@danielvm-git](https://github.com/danielvm-git) - Contributor
 
 ## Acknowledgments
-Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
+Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made on the original code that I used here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
 
 <!-- Markdown link & img dfn's -->
 
