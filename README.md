@@ -27,7 +27,11 @@ npm --version
 ## Installing
 #### Install missing packages
 * Install whatever package above you don't have. You can find the best way to do that on google
-* My OS is OSX_BigSur and I'm using these versions on it: 
+* My OS is OSX_BigSur so I need [Command Line Tools](https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) (just for mac)
+```bash
+xcode-select --install
+````
+* I'm using these versions on it: 
   * PYTHON: 
     * 3.8.2 
   * JAVA:
