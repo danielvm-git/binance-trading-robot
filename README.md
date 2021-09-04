@@ -22,7 +22,7 @@ xcode-select --install
   * JAVA:
     * 16.0.2
   * NODE:
-    * 10.24.1 (didn't work with latest version 16. Recommend to use [nvm](https://github.com/nvm-sh/nvm) to install the desired node version) 
+    * 10.24.1 (didn't work with latest version 16) 
   * NPM:
     * 7.21.1 
   * PIP:
@@ -68,6 +68,7 @@ git --version
 
 #### Install missing packages
 * Install whatever package above you don't have. You can find the best way for your OS on google
+* I recommend to use [nvm](https://github.com/nvm-sh/nvm) to install the desired node version
 
 #### Install Google Cloud SDK
 you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
