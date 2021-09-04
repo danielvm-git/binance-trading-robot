@@ -37,7 +37,7 @@ xcode-select --install
   * JAVA:
     * 16.0.2
   * NODE:
-    * 10.24.1  
+    * 10.24.1 (didn't work with latest version 16. Recommend to use [nvm](https://github.com/nvm-sh/nvm) to install the desired node version) 
   * NPM:
     * 7.21.1 
 #### Install a text editor or IDE
