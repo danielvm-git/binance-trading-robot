@@ -67,7 +67,7 @@ git --version
 ````
 
 #### Install missing packages
-* Install whatever package above you don't have. You can find the best way to install Java on google
+* Install whatever package above you don't have. You can find the best way for your OS on google
 
 #### Install Google Cloud SDK
 you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
