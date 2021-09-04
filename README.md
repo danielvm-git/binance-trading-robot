@@ -186,11 +186,13 @@ gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fir
 ```bash
 firebase init hosting
 ```
-## Authors
+## Contributing
 
-[@amfchef](https://github.com/amfchef) - Original code
- 
-[@danielvm-git](https://github.com/danielvm-git) - Contributor
+1. Fork it (<https://github.com/yourname/yourproject/fork>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
 
 ## Version History
 
@@ -199,18 +201,16 @@ firebase init hosting
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the LICENSE.md file for details 
+ 
+## Authors
+
+[@amfchef](https://github.com/amfchef) - Original code
+ 
+[@danielvm-git](https://github.com/danielvm-git) - Contributor
 
 ## Acknowledgments
 Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
-
-## Contributing
-
-1. Fork it (<https://github.com/yourname/yourproject/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
 
 <!-- Markdown link & img dfn's -->
 
