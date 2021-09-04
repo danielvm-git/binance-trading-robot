@@ -24,6 +24,7 @@ node --version
 ```bash
 npm --version
 ````
+## Installing
 #### Install missing packages
 * Install whatever package above you don't have. You can find the best way to do that on google
 * My OS is OSX_BigSur and I'm using these versions on it: 
@@ -35,7 +36,6 @@ npm --version
     * 10.24.1  
   * NPM:
     * 7.21.1 
-
 #### Install a text editor or IDE
 The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
 #### Install Google Cloud SDK
@@ -77,7 +77,6 @@ Go to https://console.cloud.google.com/ and search for Secret Manager
 
 * add the security rule Secret Manager Accessor for yor blablabla.compute@developer.gserviceaccount.com
 
-### Installing
 #### Clone my bundle
 Clone my code bundle at https://github.com/danielvm-git/binance-trading-robot and put in your project folder
 ```bash
@@ -148,22 +147,22 @@ The same json shold be used inside you alert on TradingView
 ## Help
 ### What I did to get here 
 Those where my notes during the process, it's a mess but maybe can help you
-### Followed the video
-I Followed the video and built the application like you see on the video https://www.youtube.com/watch?v=t5EfITuFD9w
+#### Followed the video
+* I Followed the video and built the application like you see on the video https://www.youtube.com/watch?v=t5EfITuFD9w
 The idea is to run @amfchef's code on this structure instead of the presenter's one. 
 #### Downloaded the original code
-Cloned @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
+* Cloned @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
 #### Moved the files
-Moved original files and replace the ones on my the application I built watching the video. Created the function binance-trading-robot-fire on Cloud Run
+* Moved original files and replace the ones on my the application I built watching the video. Created the function binance-trading-robot-fire on Cloud Run
 #### Created the Docker
-Created docker file like you see on the video then you add this to the RUN line:  
+* Created docker file like you see on the video then you add this to the RUN line:  
 python-binance binance Werkzeug google-cloud google-cloud-bigquery google-cloud-secret-manager firebase-admin pandas pyarrow
 #### Put my keys
-Edited the config files and put my keys on
+* Edited the config files and put my keys on
 
-1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+ * 1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
 
-2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+ * 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
 
 #### created de build
 ```bash
@@ -174,14 +173,11 @@ gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fi
 gcloud run deploy --image gcr.io/binance-trading-robot/binance-trading-robot-fire
 ```
 #### Created firebase project binance-trading-robot
-went to https://firebase.google.com/ and create a new project to host the role thing
+* went to https://firebase.google.com/ and create a new project to host the role thing
 #### init firebase hosting
-used this command:
 ```bash
 firebase init hosting
 ```
-
- 
 ## Authors
 
 [@amfchef](https://github.com/amfchef) - Original code
