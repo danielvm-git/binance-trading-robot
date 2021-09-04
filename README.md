@@ -2,12 +2,12 @@
 The objective of this project is to create a cryptocurrency buying and selling robot to operate from signals sent by TradingView.com indicators
 
 ## Description
-* @amfchef binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
-* I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrated amfchef's [code](https://github.com/amfchef/binance-trading-bot) to run on [Firebase](https://firebase.google.com/) 
+This is the same [@amfchef](https://github.com/amfchef) binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
+I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrated amfchef's [code](https://github.com/amfchef/binance-trading-bot) to run on [Firebase](https://firebase.google.com/) 
 
 ## Getting Started
 ### Dependencies
-### Check what you have
+#### Check what you have
 * check you JAVA version on Terminal or CMD
 ```bash
 java -version
@@ -83,7 +83,7 @@ git clone https://github.com/danielvm-git/binance-trading-robot
 ```
 
 #### Put your keys
-Open the source code folder with VSCode and edit the files and put your keys on
+Open the source code folder with VSCode and edit the files to put your keys on
 
 * 1st here: /server/src/calculate.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
      * change project_id (here is the name)
