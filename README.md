@@ -75,12 +75,14 @@ you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 
 #### Install virtual environment
 * Change directory to your project
-
-`cd "your_project" folder`
+```bash
+cd "your_project" folder
+````
 
 * Install virtual environment
-
-`pip install python3-venv`
+```bash
+pip install python3-venv
+````
 
 #### Clone my bundle
 Clone my code bundle at https://github.com/danielvm-git/binance-trading-robot and put in your project folder
@@ -103,7 +105,7 @@ Activate virtuel environment
 
 Install dependencies
 
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 
 #### login to gcloud
