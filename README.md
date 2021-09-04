@@ -24,7 +24,8 @@ node --version
 ```bash
 npm --version
 ````
-* install whatever package above you don't have. You can find the best way to do that on google
+#### Install missing packages
+* Install whatever package above you don't have. You can find the best way to do that on google
 * My OS is OSX_BigSur and I'm using these versions on it: 
   * PYTHON: 
     * 3.8.2 
