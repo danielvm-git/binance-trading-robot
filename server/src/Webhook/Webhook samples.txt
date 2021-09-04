@@ -14,18 +14,18 @@ https://binance-trading-robot.web.app/webhook
 }
 
 {
-"signal": "EXIT LONG",
-"interval": {{interval}},
-"ticker": "{{ticker}}",
-"password": "big136"
-}
-
-{
 "signal": "ENTRY SHORT",
 "interval": {{interval}},
 "ticker": "{{ticker}}",
 "entryprice": {{plot_10}},
 "stopprice": {{plot_11}},
+"password": "big136"
+}
+
+{
+"signal": "EXIT LONG",
+"interval": {{interval}},
+"ticker": "{{ticker}}",
 "password": "big136"
 }
 
