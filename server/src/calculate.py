@@ -1,9 +1,4 @@
-import os
-import io
 import json
-import config
-import logging
-import pandas as pd   
 from datetime import datetime
 from google.cloud import secretmanager
 from binance.client import Client
@@ -129,7 +124,7 @@ class Calculate:
                                             "portion_size": portion_size, "side": side, "rate": coin_rate,
                                             "sl_id": sl_id}
                 json.dump(running_orders, outfile, indent=2)  # dump
-                append_running_trades_bigquery(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id)
+                append_running_trades_firestore(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id)
 
         except Exception as e:
             print("an exception occured - {}".format(e))
@@ -155,6 +150,7 @@ class Calculate:
                 all_trades[time_now] = {"coinpair": coinpair, "interval": interval, "quantity": quantity,
                                         "portion_size": portion_size, "side": side, "Profit": profit}
                 json.dump(all_trades, outfile, indent=2)
+                append_all_trades_firestore(coinpair, interval, quantity, portion_size, side, profit)
         except Exception as e:
             print("an exception occured - {}".format(e))
 
@@ -198,8 +194,7 @@ class Calculate:
             else:
                 side = "LONG"
                 sl_id = self.set_sl(exit_price, coinpair, quantity, side)
-                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side,
-                                           sl_id)
+                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side,sl_id)
                 return order
 
         elif side == "SELL":
@@ -278,7 +273,7 @@ class Calculate:
             quantity = self.rounding_quantity(quantity * 0.999)
             side = SIDE_BUY
         try:
-            print("Sending SL order:", coinpair, side, "Q: ", quantity, "stopPrice", exit_sl)
+            print("Sending SL order:", coinpair, side,"Q: ", quantity, "stopPrice", exit_sl)
             order = self.client.create_margin_order(
                 symbol=coinpair,
                 side=side,
@@ -325,8 +320,7 @@ class Calculate:
                 side = "SHORT"
                 sl_id = self.set_sl(exit_price, coinpair, quantity, side)
 
-                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side,
-                                           sl_id)
+                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side,sl_id)
                 self.update_current_profit()
                 return order
 
@@ -352,24 +346,31 @@ class Calculate:
                 return False
 
             else:
-                usdt_rate = float(self.client.get_symbol_ticker(symbol=coinpair)['price'])
-                exit_portion_size = self.rounding_quantity(usdt_rate * rounded_down_quantity)
+                usdt_rate = float(self.client.get_symbol_ticker(
+                    symbol=coinpair)['price'])
+                exit_portion_size = self.rounding_quantity(
+                    usdt_rate * rounded_down_quantity)
                 with open("running_trades.json") as file:
                     running_trades = json.load(file)
                 entry_portion_size = running_trades[time_id]["portion_size"]
-                profit = self.rounding_quantity(float(exit_portion_size) - float(entry_portion_size))
+                profit = self.rounding_quantity(
+                    float(exit_portion_size) - float(entry_portion_size))
 
-                self.append_all_trades(coinpair, interval, previous_quanities, entry_portion_size, side, profit)
+                self.append_all_trades(
+                    coinpair, interval, previous_quanities, entry_portion_size, side, profit)
                 self.delete_running_trades(time_id)
                 return order
 
-def append_running_trades_bigquery(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id):
+
+def append_running_trades_firestore(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id):
     
     db = firestore.Client()
-    doc_ref = db.collection(u'trades').document(u'trade')
-    
+    newTrade = db.collection(u'running_trades').document()
+    newActivity = db.collection(u'activity').document()
+    now = datetime.now()
+        
     try:
-        doc_ref.set(
+        newTrade.set(
             {
                 u'coinpair': coinpair,
                 u'interval': interval,
@@ -378,12 +379,54 @@ def append_running_trades_bigquery(coinpair, interval, quantity, portion_size, s
                 u'side': side,
                 u'coin_rate': coin_rate,
                 u'sl_id': sl_id,
+                u'time_now': now,
             }
         )  # wait for table load to complete.
+        newActivity.set(
+            {
+                u'text':'A new trade was made',
+                u'side': side,
+                u'time': now,
+            }
+        )
     except Exception as e:
                 print("an exception occured - {}".format(e))
                 return False  
 
     return {
                 print(coinpair+" "+interval+" "+quantity+" "+portion_size+" "+side+" "+coin_rate+" "+sl_id)
+            }
+
+def append_all_trades_firestore(coinpair, interval, quantity, portion_size, side, profit):
+    
+    db = firestore.Client()
+    newTrade = db.collection(u'all_trades').document()
+    newActivity = db.collection(u'activity').document()
+    now = datetime.now()
+        
+    try:
+        newTrade.set(
+            {
+                u'coinpair': coinpair,
+                u'interval': interval,
+                u'quantity': quantity,
+                u'portion_size': portion_size,
+                u'side': side,
+                u'coin_rate': profit,
+                u'time_now': now,
+            }
+        )  # wait for table load to complete.
+        newActivity.set(
+            {
+                u'text':'A new trade was made',
+                u'side': side,
+                u'time': now,
+            }
+        )
+    except Exception as e:
+                print("an exception occured - {}".format(e))
+                return False  
+
+    return {
+                print(coinpair+" "+interval+" "+quantity+" "+portion_size+" "+side+" "+profit)
             }
