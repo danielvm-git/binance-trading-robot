@@ -12,7 +12,7 @@ I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrate
 ## Getting Started
 ### Dependencies
 
-* My OS is OSX_BigSur so I need [Command Line Tools](https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) (just for mac)
+My OS is OSX_BigSur so I need [Command Line Tools](https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) (just for mac)
 ```bash
 xcode-select --install
 ````
@@ -67,11 +67,12 @@ git --version
 ````
 
 #### Install missing packages
-* Install whatever package above you don't have. You can find the best way for your OS on google
-* I recommend using [nvm](https://github.com/nvm-sh/nvm) to install the desired node version
+Install whatever package above you don't have. You can find the best way for your OS on google
+
+I recommend using [nvm](https://github.com/nvm-sh/nvm) to install the desired node version
 
 #### Install Google Cloud SDK
-you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
+You can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 
 #### Clone my bundle
 
@@ -96,11 +97,11 @@ cd "your_project" folder
 ```bash
 pip3 install python3-venv
 ````
-* Create a virtuel environment
+* Create a virtual environment
 ```bash
 virtualenv venv 
 ````
-* Activate virtuel environment
+* Activate virtual environment
 ```bash
 source venv/bin/activate
 ````
@@ -138,41 +139,46 @@ you can find it searching for the API name on https://console.cloud.google.com/
 * Enable Cloud Build API
 * Enable Secret Manager API
 
+#### Create your Binance API
+*  go to [Binance API management](https://www.binance.com/en/my/settings/api-management) and do the thing there. You will receive an API-key and API-secret number. You need to add these numbers to the Secret Manager next.
+
 #### API Key and password setup
-Go to https://console.cloud.google.com/ and search for Secret Manager
-* create key, secret on Binance (remember to allow margin)
+* Go to https://console.cloud.google.com/ and search for Secret Manager
+* create API key, API secret and password on Google Secret Manager. Keep the name of each secret you create
+* Use these names on the keys
+     *  trade_password_binance_margin
+     *  exchange_api_key_binance_margin
+     *  exchange_api_secret_binance_margin
 
-* create key, secret and password on Google Secret Manager
-
+#### Security Polices
+* Go to https://console.cloud.google.com/ and search for IAM
 * add the security rule Secret Manager Accessor for your blablabla.compute@developer.gserviceaccount.com
-
-### Create your Binance API
-[Binance API management](https://www.binance.com/en/my/settings/api-management)
-
-You will receive an API-key and API-secret number. You need to add these numbers to the `config.py` file.
 
 #### Put your keys
 Open the source code folder with VSCode and edit the files to put your keys on
 
-* 1st here: /server/src/calculate.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+* 1st here: /server/src/app.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+     * change project_id (here is the name)
+     * change password_request ("projects/<put your project number here>/secrets/trade_password_binance_margin/versions/latest") 
+ 
+* 2nd here: /server/src/calculate.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
      * change project_id (here is the name)
      * change key_request ("projects/<put your project number here>/secrets/exchange_api_key_binance_margin/versions/latest")
      * change secret_request ("projects/<put your project number here>/secrets/exchange_api_secret_binance_margin/versions/latest") 
 
-* 2nd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+* 3rd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
  
 #### create de build
 Open a Terminal inside your VSCode.
 If it's not on you projec folder you first go to the folder where you cloned the repository
-
 ```bash
-cd .../binance-trading-robot
+cd "your_project" folder
 ````
 go to your server folder
 ```bash
 cd server
 ```
-And than, inside the folder you execute this command
+Inside the folder you execute this command
 ```bash
 gcloud builds submit --tag gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
 ```
@@ -202,16 +208,33 @@ use this command:
 ```bash
 firebase init hosting
 ```
-
-## Running the tests
-That's it!
+### That's it!
 Go to [Google Cloud Console](https://console.cloud.google.com/) -> Cloud Run and the adress of the service created is your webhook. Just use it on your TradingView with MM indicator
  
-You can also use [Insominia](https://insomnia.rest/) to simulate TradingView sending a POST to your webhook
+## Running the tests 
+#### Webhook
+ * You can also use [Insominia](https://insomnia.rest/) to simulate TradingView sending a POST to your webhook
+     * Find examples of how the json shold be strectured [here](https://github.com/danielvm-git/binance-trading-robot/tree/main/server/src/Webhook)
+     * The same json shold be used inside you alert on TradingView
 
-Find examples of how the json shold be strectured [here](https://github.com/danielvm-git/binance-trading-robot/tree/main/server/src/Webhook)
-The same json shold be used inside you alert on TradingView
-
+#### Local Test
+ * You can also run the firebase server and test locally. The result of the command bellow will be a localhost address
+ ```bash
+firebase serve
+```
+#### Cloud Run Test
+ * Create the build and deploy is again. The result of the deploy command bellow will be an internet address to your site
+ ```bash
+gcloud builds submit --tag gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
+``` 
+ ```bash
+gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
+``` 
+#### Firebase Test
+ * Create the build and deploy is again. The result of the deploy command bellow will be an internet address to your site
+ ```bash
+firebase deploy --only hosting
+``` 
 ## Help
 ### What I did to get here 
 Those where my notes during the process, it's a mess but maybe can help you
