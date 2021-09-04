@@ -79,7 +79,7 @@ Go to https://console.cloud.google.com/ and search for Secret Manager
 
 * create key, secret and password on Google Secret Manager
 
-* add the security rule Secret Manager Accessor for yor blablabla.compute@developer.gserviceaccount.com
+* add the security rule Secret Manager Accessor for your blablabla.compute@developer.gserviceaccount.com
 
 #### Clone my bundle
 Clone my code bundle at https://github.com/danielvm-git/binance-trading-robot and put in your project folder
