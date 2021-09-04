@@ -20,6 +20,10 @@ java -version
 ```bash
 python3 --version
 ```
+* check your NVM version
+```bash
+nvm --version
+```
 * check your NODE version
 ```bash
 node --version
@@ -28,7 +32,18 @@ node --version
 ```bash
 npm --version
 ````
+* check your NPM version
+```bash
+pip3 --version
+````
+
 ## Installing
+#### Install a text editor or IDE
+The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
+
+#### Install Google Cloud SDK
+you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
+
 #### Install missing packages
 * Install whatever package above you don't have. You can find the best way to do that on google
 * My OS is OSX_BigSur so I need [Command Line Tools](https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) (just for mac)
@@ -44,10 +59,53 @@ xcode-select --install
     * 10.24.1 (didn't work with latest version 16. Recommend to use [nvm](https://github.com/nvm-sh/nvm) to install the desired node version) 
   * NPM:
     * 7.21.1 
-#### Install a text editor or IDE
-The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
-#### Install Google Cloud SDK
-you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
+  * PIP:
+    * 19.2.3
+  * NVM:
+    * 0.38.0
+
+#### Install PIP
+```bash
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+````
+#### Install Git
+
+`pip3 install git`
+
+#### Install virtual environment
+* Change directory to your project
+
+`cd "your_project" folder`
+
+* Install virtual environment
+
+`pip install python3-venv`
+
+#### Clone my bundle
+Clone my code bundle at https://github.com/danielvm-git/binance-trading-robot and put in your project folder
+
+Change directory to your project
+
+`cd "your_project" folder`
+
+Clone my repo
+
+`git clone https://github.com/danielvm-git/binance-trading-robot`
+
+Create a virtuel environment
+
+`virtualenv venv` 
+
+Activate virtuel environment
+
+`source venv/bin/activate`
+
+Install dependencies
+
+`pip install -r requirements.txt`
+
+
+
 #### login to gcloud
 ```bash
 gcloud auth login
@@ -85,11 +143,10 @@ Go to https://console.cloud.google.com/ and search for Secret Manager
 
 * add the security rule Secret Manager Accessor for your blablabla.compute@developer.gserviceaccount.com
 
-#### Clone my bundle
-Clone my code bundle at https://github.com/danielvm-git/binance-trading-robot and put in your project folder
-```bash
-git clone https://github.com/danielvm-git/binance-trading-robot
-```
+### Create your Binance API
+[Binance API management](https://www.binance.com/en/my/settings/api-management)
+
+You will receive an API-key and API-secret number. You need to add these numbers to the `config.py` file.
 
 #### Put your keys
 Open the source code folder with VSCode and edit the files to put your keys on
