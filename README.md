@@ -193,6 +193,6 @@ firebase init hosting
 
 This project is licensed under the MIT License - see the LICENSE.md file for details
 
-## Acknowledgments\
+## Acknowledgments
 Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
 
