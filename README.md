@@ -7,8 +7,35 @@ The objective of this project is to create a cryptocurrency buying and selling r
 
 ## Getting Started
 ### Dependencies
+### Check what you have
+* check you JAVA version on Terminal or CMD
+```bash
+java -version
+```
+* check you PYTHON version on Terminal or CMD
+```bash
+python3 --version
+```
+* check you NODE version on Terminal or CMD
+```bash
+node --version
+```
+* check you NPM version on Terminal or CMD
+```bash
+npm --version
+````
+* install whatever package above you don't have. I'm using: 
+  * PYTHON: 
+    * 3.8.2 
+  * JAVA:
+    * 16.0.2
+  * NODE:
+    * 10.24.1  
+  * NPM:
+    * 7.21.1 
+
 #### Install a text editor or IDE
-The guy on the video is using https://code.visualstudio.com/ (recommended, I'm using as well)
+The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
 #### Install Google Cloud SDK
 you can find how to do that here https://cloud.google.com/sdk/docs/quickstart
 #### login to gcloud
