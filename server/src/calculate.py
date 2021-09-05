@@ -5,7 +5,9 @@ from binance.client import Client
 from binance.enums import *
 import firebase_admin
 from firebase_admin import credentials, firestore
+import logging
 
+log = logging.getLogger(__name__)
 cred = credentials.Certificate("./serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 
@@ -166,7 +168,7 @@ class Calculate:
                             profit += all_trades[key]["Profit"]
         except Exception as e:
             print("Cant get total profit, an exception occured - {}".format(e))
-            return "Cant get total profit"
+            return 0
         else:
             return profit
 
@@ -320,7 +322,7 @@ class Calculate:
                 side = "SHORT"
                 sl_id = self.set_sl(exit_price, coinpair, quantity, side)
 
-                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side,sl_id)
+                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side, sl_id)
                 self.update_current_profit()
                 return order
 
@@ -360,12 +362,37 @@ class Calculate:
                     coinpair, interval, previous_quanities, entry_portion_size, side, profit)
                 self.delete_running_trades(time_id)
                 return order
+    
+    def get_Active_Trades(self):
+        print("🚀 ENTROU readRunningTrades ---------------")
+        db = firestore.Client()
+        docs = []
+        runningTradesData = db.collection(u'active_trades').stream()
+        for doc in runningTradesData:
+            print("🚀 ENTROU no SIDE do readRunningTrades -------")
+            print(doc.get('side'))
+            print("🚀 ENTROU no SIDE do readRunningTrades -------")
+            docs.append(doc.to_dict())
+        return docs
 
+    def get_Closed_Trades(self):
+        print("🚀 ENTROU readTradeObject ---------------")
+        db = firestore.Client()
+        trades = []
+        trades_doc_ref_list = db.collection(u'closed_trades').stream()
+        for trade_doc_ref in trades_doc_ref_list:
+            print("🚀 ENTROU no FOR do get_TradeObject_List -------")
+            # trade_doc = trade_doc_ref.get(trade_doc_ref.id)
+            trade = Trade.from_dict(trade_doc_ref.to_dict())
+            print(trade)
+            print("🚀 ENTROU no FOR do get_TradeObject_List -------")
+            trades.append(trade)
+        return trades
 
 def append_running_trades_firestore(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id):
     
     db = firestore.Client()
-    newTrade = db.collection(u'running_trades').document()
+    newTrade = db.collection(u'active_trades').document()
     newActivity = db.collection(u'activity').document()
     now = datetime.now()
         
@@ -379,14 +406,14 @@ def append_running_trades_firestore(coinpair, interval, quantity, portion_size, 
                 u'side': side,
                 u'coin_rate': coin_rate,
                 u'sl_id': sl_id,
-                u'time_now': now,
+                u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
             }
         )  # wait for table load to complete.
         newActivity.set(
             {
-                u'text':'A new trade was made',
+                u'text': 'A new trade was made',
                 u'side': side,
-                u'time': now,
+                u'time': now.strftime("%m/%d/%Y, %H:%M:%S"),
             }
         )
     except Exception as e:
@@ -413,14 +440,14 @@ def append_all_trades_firestore(coinpair, interval, quantity, portion_size, side
                 u'portion_size': portion_size,
                 u'side': side,
                 u'coin_rate': profit,
-                u'time_now': now,
+                u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
             }
         )  # wait for table load to complete.
         newActivity.set(
             {
-                u'text':'A new trade was made',
+                u'text': 'A new trade was made',
                 u'side': side,
-                u'time': now,
+                u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
             }
         )
     except Exception as e:
@@ -428,5 +455,55 @@ def append_all_trades_firestore(coinpair, interval, quantity, portion_size, side
                 return False  
 
     return {
-                print(coinpair+" "+interval+" "+quantity+" "+portion_size+" "+side+" "+profit)
-            }
+        print(coinpair+" "+interval+" "+quantity +" "+portion_size+" "+side+" "+profit)
+    }
+
+# [START custom_class_def]
+# [START firestore_data_custom_type_definition]
+class Trade(object):
+    def __init__(self, coinpair, interval, quantity, portion_size, side, coin_rate, date):
+        self.coinpair = coinpair
+        self.interval = interval
+        self.quantity = quantity
+        self.portion_size = portion_size
+        self.side = side
+        self.coin_rate = coin_rate
+        self.date = date
+
+    @staticmethod
+    def from_dict(source):
+        # [START_EXCLUDE]
+        trade = Trade(source[u'coinpair'], source[u'interval'], source[u'quantity'], source[u'portion_size'], source[u'side'],source[u'coin_rate'],source[u'time_now'])
+        # [END_EXCLUDE]
+
+    def to_dict(self):
+        # [START_EXCLUDE]
+        dest = {
+            u'coinpair': self.coinpair,
+            u'interval': self.interval,
+            u'quantity': self.quantity,
+            u'coin_rate': self.coin_rate,
+            u'side': self.side,
+            u'portion_size': self.portion_size
+        }
+
+        if self.time_now:
+            dest[u'time_now'] = self.time_now
+
+        return dest
+        # [END_EXCLUDE]
+
+    def __repr__(self):
+        return(
+            f'Trade(\
+                coinpair={self.coinpair}, \
+                interval={self.interval}, \
+                quantity={self.quantity}, \
+                portion_size={self.portion_size}, \
+                side={self.side}, \
+                coin_rate={self.coin_rate}, \
+                time_now={self.time_now}\
+            )'
+        )
+# [END firestore_data_custom_type_definition]
+# [END custom_class_def]
