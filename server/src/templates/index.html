@@ -35,18 +35,17 @@
                
             </tr>
          </thead>
-         {% for key, value in running_trades.items() %}
+         {% for trade in active_trades %}
          <tbody>
             <tr style="background-color: aliceblue" class="table-primary">
-               <th scope="row"> {{ key }} </th>
-               <td> {{ value.coinpair }} </td>
-               <td> {{ value.current_profit}} </td>
-               <td> {{ value.rate }} </td>
-               <td> {{ value.interval }} </td>
-               <td> {{ value.quantity }} </td>
-               <td> {{ value.portion_size }} </td>
-               <td> {{ value.side }} </td>
-               
+               <th scope="row"> {{ trade.time_now }} </th>
+               <td> {{ trade.coinpair }} </td>
+               <td> {{ trade.profit }} </td>
+               <td> {{ trade.coin_rate }} </td>
+               <td> {{ trade.interval }} </td>
+               <td> {{ trade.quantity }} </td>
+               <td> {{ trade.portion_size }} </td>
+               <td> {{ trade.side }} </td>               
             </tr>
             {% endfor %}
          </tbody>
@@ -77,16 +76,17 @@
                <th scope="col">Profit $</th>
             </tr>
          </thead>
-         {% for key, value in all_trades.items() %}
+         {% for trade in all_trades %}
          <tbody>
             <tr style="background-color: aliceblue" class="table-primary">
-               <th scope="row"> {{ key }} </th>
-               <td> {{ value.coinpair }} </td>
-               <td> {{ value.interval }} </td>
-               <td> {{ value.quantity }} </td>
-               <td> {{ value.portion_size }} </td>
-               <td> {{ value.side }} </td>
-               <td> {{ value.Profit }} </td>
+               <td> "ID" </td>
+               <td> {{ trade.coinpair }} </td>
+               <td> {{ trade.interval }} </td>
+               <td> {{ trade.quantity }} </td>
+               <td> {{ trade.portion_size }} </td>
+               <td> {{ trade.side }} </td>
+               <td> {{ trade.coin_rate }} </td>
+               <td> {{ trade.time_now }} </td>
             </tr>
             {% endfor %}
          </tbody>
