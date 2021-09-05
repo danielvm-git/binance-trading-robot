@@ -28,8 +28,8 @@ def welcome():
     calculate.update_current_profit()
     current_profit = calculate.get_total_current_profit()
     current_year = datetime.datetime.now().year
-    running_trades = calculate.get_running_trades()
-    all_trades = calculate.get_all_trades()
+    active_trades = calculate.get_Active_Trades()
+    all_trades = calculate.get_Closed_Trades()
     total_profit = int(calculate.get_total_profit())
     usdt_balance = calculate.get_usdt_balance()
     if request.method == "POST":
@@ -45,7 +45,7 @@ def welcome():
             return redirect('/')
     return render_template('index.html', current_profit=current_profit, usdt_balance=usdt_balance,
                             all_trades=all_trades, total_profit=total_profit, current_year=current_year,
-                            running_trades=running_trades)
+                            active_trades=active_trades)
 
 
 if __name__ == "__main__":
