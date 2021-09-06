@@ -1,6 +1,6 @@
 FROM python:3.8
 
-RUN pip install flask gunicorn python-binance binance Werkzeug google-cloud google-cloud-bigquery google-cloud-secret-manager firebase-admin pandas pyarrow
+RUN pip install flask gunicorn python-binance binance Werkzeug google-cloud google-cloud-secret-manager firebase-admin
 
 COPY src/ app/
 WORKDIR /app
