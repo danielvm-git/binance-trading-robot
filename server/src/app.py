@@ -7,22 +7,37 @@ from werkzeug.utils import redirect
 from flask import Flask, request, render_template
 import datetime
 import logging
+import sys
 
-calculate = Calculate()
-
-app = Flask(__name__)
+# * ###########################################################################
+# * LOGGING INSTATIATION RETURNING ON CONSOLE
+# * ###########################################################################
+logging.basicConfig(stream = sys.stdout,level = logging.ERROR)
 log = logging.getLogger(__name__)
 
+# * ###########################################################################
+# * FLASK APP INSTATIATION
+# * ###########################################################################
+app = Flask(__name__)
+
+# * ###########################################################################
+# * CALCULATE CLASS INSTATIATION
+# * ###########################################################################
+calculate = Calculate()
+
+# * ###########################################################################
+# * SECRET MANAGER INSTATIATION
+# * ###########################################################################
 secretManagerClient = secretmanager.SecretManagerServiceClient()
 trade_password = "trade_password_binance_margin"
 project_id = "binance-trading-robot"
 password_request = {"name": f"projects/101254323285/secrets/trade_password_binance_margin/versions/latest"}
-
 password_response = secretManagerClient.access_secret_version(password_request)
-
 PASSWORD_string = password_response.payload.data.decode("UTF-8")
 
-
+# * ###########################################################################
+# * ROUTE TO HOME
+# * ###########################################################################
 @app.route('/', methods=['GET', 'POST'])
 def welcome():
     calculate.update_current_profit()
@@ -51,7 +66,9 @@ def welcome():
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
 
-
+# * ###########################################################################
+# * ROUTE TO WEBHOOK
+# * ###########################################################################
 @app.route('/webhook', methods=['POST'])
 def webhook():
         
@@ -130,5 +147,4 @@ def webhook():
         return {
             "code": "error",
             "message": "order failed"
-
         }
