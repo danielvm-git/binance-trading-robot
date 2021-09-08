@@ -6,7 +6,7 @@
             "request": "launch",
             "build": {
                 "docker": {
-                    "path": "server/Dockerfile"
+                    "path": "Dockerfile"
                 }
             },
             "image": "binance-trading-robot",
@@ -22,7 +22,13 @@
             "target": {
                 "minikube": {}
             },
-            "watch": true
+            "watch": true,
+            "internalConsoleOptions": "neverOpen",
+            "debug": {
+                "sourceFileMap": {
+                    "${workspaceFolder}": "/"
+                }
+            }
         }
     ]
 }
