@@ -32,3 +32,25 @@ https://firebase.google.com/
 Reference videos ===============
 follow this tutorial to host your flask aplication on firebase hosting
 https://www.youtube.com/watch?v=t5EfITuFD9w
+
+
+Mkdir novo projeto
+
+Cd novo projeto
+
+
+
+python3 -m venv env
+
+source ./env/bin/activate
+
+pip install --upgrade pip
+
+pip install -r requirements.txt
+
+
+brew install openssl readline sqlite3 xz zlib
+
+gcloud builds submit --tag gcr.io/binance-trading-robot/site-binance-mm-bot
+
+gcloud run deploy site-binance-mm-bot --image gcr.io/binance-trading-robot/site-binance-mm-bot
