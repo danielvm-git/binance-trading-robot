@@ -1,0 +1,8 @@
+flask~=2.0.1
+gunicorn
+python-binance
+binance~=0.3
+Werkzeug~=2.0.1
+google-cloud
+google-cloud-secret-manager
+firebase-admin
