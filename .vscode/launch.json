@@ -15,7 +15,8 @@
                 "containerPort": 8080,
                 "resources": {
                     "limits": {
-                        "memory": "256Mi"
+                        "memory": "256Mi",
+                        "cpu": 1
                     }
                 }
             },
@@ -23,10 +24,9 @@
                 "minikube": {}
             },
             "watch": true,
-            "internalConsoleOptions": "neverOpen",
             "debug": {
                 "sourceFileMap": {
-                    "${workspaceFolder}": "/"
+                    "${workspaceFolder}": "/app"
                 }
             }
         }
