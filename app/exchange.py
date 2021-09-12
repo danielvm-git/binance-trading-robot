@@ -1,8 +1,9 @@
 from app import config
 import sys
+import math
 import logging
 from datetime import datetime
-from google.cloud import secretmanager
+from binance.enums import *
 from binance.client import Client
 
 # * ###########################################################################
@@ -32,6 +33,8 @@ class ExchangeClient:
         try:
             account_overview = self.binance_client.get_margin_account()
             position_size = float (account_overview["totalAssetOfBtc"])
+            margin_level = float (account_overview["marginLevel"])
+            margin_level = round(margin_level,2)
             symbol = "BTCUSDT"
             margin_price_index = self.get_margin_price_index(symbol)
             position_value_in_dollar = self.calculate_position_value_in_dollar(margin_price_index,position_size)
@@ -39,6 +42,7 @@ class ExchangeClient:
             account_overview["tradeEnabled"] = str(account_overview["tradeEnabled"])
             account_overview["transferEnabled"] = str(account_overview["transferEnabled"])
             account_overview["borrowEnabled"] = str(account_overview["borrowEnabled"])
+            account_overview["marginLevel"] = str(margin_level)
             logger.debug("👇👇👇👇👇 - account_overview - 👇👇👇👇👇 ")        
             logger.debug(account_overview)
             logger.debug("👆👆👆👆👆 - account_overview - 👆👆👆👆👆 ") 
@@ -96,6 +100,7 @@ class ExchangeClient:
                 symbol = symbol + "USDT"
                 margin_price_index = self.get_margin_price_index(symbol)
                 position_value_in_dollar = self.calculate_position_value_in_dollar(margin_price_index,position_size)
+                position_value_in_dollar = "${:,.2f}".format(position_value_in_dollar)
                 if position_size != 0:
                     open_position["has_stop_loss"] = "false"
                     for open_margin_order in open_margin_orders:
@@ -145,3 +150,127 @@ class ExchangeClient:
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return position_value_in_dollar
+    
+    def get_usdt_balance(self):
+        btc_balance = float(self.binance_client.get_margin_account()['totalNetAssetOfBtc'])
+        btc_rate = float((self.binance_client.get_symbol_ticker(symbol="BTCUSDT")['price']))
+        usdt_balance = round(btc_balance * btc_rate, 0)
+        return int(usdt_balance)
+
+    def portion_size(self, account_balance, stop_limit_percentage):
+        risk_amount = account_balance * self.RISK_FACTOR
+        portion_size = risk_amount / stop_limit_percentage
+        return round(portion_size, 2)
+    
+    def convert_portion_size_to_quantity(self, coin_pair, portion_size):
+        try:
+
+            coin_rate = float((self.binance_client.get_symbol_ticker(symbol=coin_pair)['price']))
+            quantity = portion_size / coin_rate
+            return float(quantity)
+
+        except Exception as e:
+            print("an exception occured - {}".format(e))
+    
+    def get_tick_and_step_size(self, symbol):
+        tick_size = None
+        step_size = None
+        symbol_info = self.binance_client.get_symbol_info(symbol)
+        for filt in symbol_info['filters']:
+            if filt['filterType'] == 'PRICE_FILTER':
+                tick_size = float(filt['tickSize'])
+            if filt['filterType'] == 'LOT_SIZE':
+                step_size = float(filt['stepSize'])
+        return tick_size, step_size
+
+        # Round the quantity or price range, with the actual allowed decimals
+    def rounding_exact_quantity(self, quantity, step_size):
+        print("stepSize", step_size)
+        step_size = int(math.log10(1 / float(step_size)))
+        quantity = math.floor(float(quantity) * 10 ** step_size) / 10 ** step_size
+        quantity = "{:0.0{}f}".format(float(quantity), step_size)
+        return str(int(quantity)) if int(step_size) == 0 else quantity
+
+    def long_order(self, quantity, coinpair):
+        order = None
+        try:
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)              
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+
+    def short_order(self, quantity, coinpair):
+        order = None
+        try:
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)              
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+    
+    def set_long_stop_loss(self, coinpair, quantity, price, trigger_condition ):
+        order = None
+        try:
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)             
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+    
+    def set_short_stop_loss(self, coinpair, quantity, price, trigger_condition ):
+        order = None
+        try:
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)             
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+
+    def exit_long(self, coinpair, quantity):
+        order = None
+        try:            
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)           
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+
+    def exit_short(self, coinpair, quantity):
+        order = None
+        try: 
+            logger.debug("👇👇👇👇👇 - exit_short - 👇👇👇👇👇 ")        
+            logger.debug(coinpair)
+            logger.debug(quantity)
+            logger.debug("👆👆👆👆👆 - exit_short - 👆👆👆👆👆 ")            
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)      
+            logger.debug("👇👇👇👇👇 - exit_short - 👇👇👇👇👇 ")        
+            logger.debug(order)
+            logger.debug("👆👆👆👆👆 - exit_short - 👆👆👆👆👆 ")      
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+
+    def check_is_sl_hit(self, coinpair):
+        order_id_list = []
+        quantity = 0
+        asset = coinpair.replace("USDT","")
+        try:
+            # TODO testar quando não tem ordem aberta
+            account_overview = self.get_account_overview()
+            open_positions = self.get_open_positions(account_overview)
+            open_orders = self.get_open_margin_orders()
+            
+            for open_order in  open_orders:
+                if open_order["symbol"] == coinpair:
+                    order_id_list.append(open_order["orderId"])                    
+            for open_position in open_positions:
+                if open_position["asset"] == asset:
+                    quantity = quantity + float(open_position["netAsset"])
+            for order_id in order_id_list:
+                self.binance_client.cancel_margin_order(symbol=coinpair,orderId=order_id)
+
+        except Exception as e:
+                logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return quantity
