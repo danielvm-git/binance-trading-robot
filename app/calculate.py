@@ -6,6 +6,7 @@ from binance.enums import *
 import firebase_admin
 from firebase_admin import credentials, firestore
 import logging
+import math
 
 # * ###########################################################################
 # * LOGGING INSTATIATION RETURNING ON CONSOLE
@@ -24,6 +25,7 @@ class CalculateClient:
     def __init__(self):
         self.RISK_FACTOR = 0.01
         self.client = Client(config_client.API_KEY, config_client.API_SECRET)
+        self.now = datetime.now()
 
     def portion_size(self, account_balance, stop_limit_percentage):
         risk_amount = account_balance * self.RISK_FACTOR
@@ -89,7 +91,7 @@ class CalculateClient:
 
         return 0
 
-    def finding_quantity_and_ID_from_running_trades_rec(find_coin, find_interval):
+    def finding_quantity_and_ID_from_running_trades_rec(self,find_coin, find_interval):
         print(find_coin, find_interval)
         found_quantity = 0
         found_time_id = ""
@@ -183,14 +185,16 @@ class CalculateClient:
         except Exception as e:
             print("an exception occured - {}".format(e))
 
-    def order(self, side, quantity, coinpair, interval, portionsize, exit_price):
+    def long_order(self, side, quantity, coinpair, interval, portionsize, exit_price, sl_percentage):
         order_type = ORDER_TYPE_MARKET
         if side == "BUY":
             try:
-                print(
-                    f"sending order: {order_type} - {side} {quantity} {coinpair}")
-                order = self.client.create_margin_order(sideEffectType="MARGIN_BUY", symbol=coinpair, side=side,
-                                                        type=ORDER_TYPE_MARKET, quantity=quantity)
+                rate_steps, quantity_steps = self.get_tick_and_step_size(coinpair)
+                quantity = self.rounding_exact_quantity(quantity, quantity_steps)
+                time_now = str(self.now.strftime("%d/%m %H:%M:%S"))
+                print(f"sending order: {time_now} {coinpair} quantity: {quantity} "
+                    f"portion size: {portionsize} SL % : {sl_percentage} ")
+                order = self.client.create_margin_order(sideEffectType="MARGIN_BUY", symbol=coinpair, side=side, type=ORDER_TYPE_MARKET, quantity=quantity)
 
             except Exception as e:
                 print("an exception occured - {}".format(e))
@@ -205,8 +209,7 @@ class CalculateClient:
 
         elif side == "SELL":
             print(coinpair, interval)
-            previous_quanities, time_id = self.finding_quantity_and_ID_from_running_trades_rec(
-                coinpair, interval)
+            previous_quanities, time_id = self.finding_quantity_and_ID_from_running_trades_rec(coinpair, interval)
             print("pre Q: ", previous_quanities)
             if time_id == "No ID found":
                 print("no ID found, ID= ", time_id)
@@ -279,14 +282,18 @@ class CalculateClient:
 
     def set_sl(self, exit_sl, coinpair, quantity, side):
         if side == "LONG":
-            price = exit_sl * 0.999
-            price = self.rounding_quantity(price)
-            quantity = self.rounding_quantity(quantity * 0.999)
+            limit_price = exit_sl * 0.97
+            rate_steps, quantity_steps = self.get_tick_and_step_size(coinpair)
+            exit_sl = self.rounding_exact_quantity(exit_sl, rate_steps)
+            limit_price = self.rounding_exact_quantity(limit_price, rate_steps)
+            quantity = self.rounding_exact_quantity(float(quantity) * 0.97, quantity_steps)
             side = SIDE_SELL
         elif side == "SHORT":
-            price = exit_sl * 1.001
-            price = self.rounding_quantity(price)
-            quantity = self.rounding_quantity(quantity * 0.999)
+            limit_price = exit_sl * 1.02
+            rate_steps, quantity_steps = self.get_tick_and_step_size(coinpair)
+            exit_sl = self.rounding_exact_quantity(exit_sl, rate_steps)
+            limit_price = self.rounding_exact_quantity(limit_price, rate_steps)
+            quantity = self.rounding_exact_quantity(float(quantity) * 0.97, quantity_steps)
             side = SIDE_BUY
         try:
             print("Sending SL order:", coinpair, side,
@@ -297,7 +304,7 @@ class CalculateClient:
                 type=ORDER_TYPE_STOP_LOSS_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
                 quantity=quantity,
-                price=price,
+                price=limit_price,
                 stopPrice=exit_sl
             )
         except Exception as e:
@@ -320,16 +327,13 @@ class CalculateClient:
         except Exception as e:
             print("No SL could be set: - {}".format(e))
 
-    def short_order(self, side, quantity, coinpair, interval, portionsize, exit_price):
+    def short_order(self, side, quantity, coinpair, interval, portionsize, exit_price, sl_percent):
         order_type = ORDER_TYPE_MARKET
         if side == "SELL":
 
             try:
-                print(
-                    f"sending order: SHORT - {order_type} - {side} {quantity} {coinpair}")
-                order = self.client.create_margin_order(sideEffectType="MARGIN_BUY",
-                                                        symbol=coinpair, side=SIDE_SELL, type=ORDER_TYPE_MARKET,
-                                                        quantity=quantity)
+                print(f"sending order: SHORT - {order_type} - {side} {quantity} {coinpair}")
+                order = self.client.create_margin_order(sideEffectType="MARGIN_BUY", symbol=coinpair, side=SIDE_SELL, type=ORDER_TYPE_MARKET, quantity=quantity)
 
             except Exception as e:
                 print("an exception occured - {}".format(e))
@@ -338,14 +342,12 @@ class CalculateClient:
                 side = "SHORT"
                 sl_id = self.set_sl(exit_price, coinpair, quantity, side)
 
-                self.append_running_trades(
-                    coinpair, interval, quantity, self.rounding_quantity(portionsize), side, sl_id)
+                self.append_running_trades(coinpair, interval, quantity, self.rounding_quantity(portionsize), side, sl_id, sl_percent)
                 self.update_current_profit()
                 return order
 
         elif side == "BUY":
-            previous_quanities, time_id = self.finding_quantity_and_ID_from_running_trades_rec(
-                coinpair, interval)
+            previous_quanities, time_id = self.finding_quantity_and_ID_from_running_trades_rec(coinpair, interval)
             print("Q ", previous_quanities, "ID ", time_id)
             if time_id == "No ID found":
                 print("no ID found, ID= ", time_id)
@@ -354,11 +356,9 @@ class CalculateClient:
             running_trades = self.get_running_trades()
             sl_id = running_trades[time_id]["sl_id"]
             self.check_is_sl_hit(coinpair, sl_id)
-            rounded_down_quantity = self.rounding_quantity(
-                float(previous_quanities) * 0.999)
+            rounded_down_quantity = self.rounding_quantity(float(previous_quanities) * 0.999)
             try:
-                print("sending order: ", order_type, side,
-                      rounded_down_quantity, coinpair)
+                print("sending order: ", order_type, side, rounded_down_quantity, coinpair)
                 order = self.client.create_margin_order(sideEffectType="AUTO_REPAY",
                                                         symbol=coinpair, side=SIDE_BUY, type=ORDER_TYPE_MARKET,
                                                         quantity=rounded_down_quantity)
@@ -368,20 +368,17 @@ class CalculateClient:
                 return False
 
             else:
-                usdt_rate = float(self.client.get_symbol_ticker(
-                    symbol=coinpair)['price'])
-                exit_portion_size = self.rounding_quantity(
-                    usdt_rate * rounded_down_quantity)
+                usdt_rate = float(self.client.get_symbol_ticker(symbol=coinpair)['price'])
+                exit_portion_size = self.rounding_quantity(usdt_rate * rounded_down_quantity)
                 with open("running_trades.json") as file:
                     running_trades = json.load(file)
                 entry_portion_size = running_trades[time_id]["portion_size"]
-                profit = self.rounding_quantity(
-                    float(exit_portion_size) - float(entry_portion_size))
+                profit = self.rounding_quantity(float(exit_portion_size) - float(entry_portion_size))
 
-                self.append_all_trades(
-                    coinpair, interval, previous_quanities, entry_portion_size, side, profit)
+                self.append_all_trades(coinpair, interval, previous_quanities, entry_portion_size, side, profit)
                 self.delete_running_trades(time_id)
                 return order
+
     
     def get_Active_Trades(self):
         print("🚀 ENTROU readRunningTrades ---------------")
@@ -408,6 +405,28 @@ class CalculateClient:
             print("🚀 ENTROU no FOR do get_TradeObject_List -------")
             trades.append(trade)
         return trades
+        # Check how many decimals are allowed per coinpair, 
+        # tickSize = allowed decimals in price range
+        # stepSize = allowed decimals in quantity range
+
+    def get_tick_and_step_size(self, symbol):
+        tick_size = None
+        step_size = None
+        symbol_info = self.client.get_symbol_info(symbol)
+        for filt in symbol_info['filters']:
+            if filt['filterType'] == 'PRICE_FILTER':
+                tick_size = float(filt['tickSize'])
+            if filt['filterType'] == 'LOT_SIZE':
+                step_size = float(filt['stepSize'])
+        return tick_size, step_size
+
+        # Round the quantity or price range, with the actual allowed decimals
+    def rounding_exact_quantity(self, quantity, step_size):
+        print("stepSize", step_size)
+        step_size = int(math.log10(1 / float(step_size)))
+        quantity = math.floor(float(quantity) * 10 ** step_size) / 10 ** step_size
+        quantity = "{:0.0{}f}".format(float(quantity), step_size)
+        return str(int(quantity)) if int(step_size) == 0 else quantity
 
 def append_running_trades_firestore(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id):
 
@@ -527,6 +546,6 @@ class Trade(object):
                 coin_rate={self.coin_rate}, \
                 time_now={self.time_now}\
             )'
-        )
+        )    
 # [END firestore_data_custom_type_definition]
 # [END custom_class_def]
