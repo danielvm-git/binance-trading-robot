@@ -38,8 +38,7 @@ def welcome():
     account_overview = exchange_client.get_account_overview()
     open_positions = exchange_client.get_open_positions(account_overview)
     open_margin_orders = exchange_client.get_open_margin_orders()
-    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders) 
-    calculate_client.get_Active_Trades()   
+    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders)  
     return render_template('index.html', account_overview=account_overview, open_positions=checked_open_positions, open_margin_orders=open_margin_orders)
 
 @app.route('/ajaxfile', methods=['GET', 'POST'])                                                                                  
