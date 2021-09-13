@@ -297,8 +297,8 @@ Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) ma
 
 <!-- Markdown link & img dfn's -->
 
-[version-image]: https://img.shields.io/badge/Version-0.0.1-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://img.shields.io/badge/version-0.0.1-green
+[version-image]: https://img.shields.io/badge/Version-0.0.2-brightgreen?style=for-the-badge&logo=appveyor
+[version-url]: https://img.shields.io/badge/version-0.0.2-green
 [Frontend-image]: https://img.shields.io/badge/Frontend-Bootstrap-blue?style=for-the-badge
 [Frontend-url]: https://img.shields.io/badge/Frontend-Bootstrap-blue?style=for-the-badge
 [Backend-image]: https://img.shields.io/badge/Backend-Python-important?style=for-the-badge
