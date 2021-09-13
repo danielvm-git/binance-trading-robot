@@ -279,8 +279,13 @@ firebase init hosting
 
 ## Version History
 
+* 0.0.2
+ * New look and feel
+ * Bug fix - stop loss not being created
+ * Refactory routes.py
+ * Save orders result to firestore
 * 0.0.1
-    * Initial work
+ * Initial work
 
 ## License
 
