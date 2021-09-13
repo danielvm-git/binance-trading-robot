@@ -38,7 +38,8 @@ def welcome():
     account_overview = exchange_client.get_account_overview()
     open_positions = exchange_client.get_open_positions(account_overview)
     open_margin_orders = exchange_client.get_open_margin_orders()
-    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders)    
+    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders) 
+    calculate_client.get_Active_Trades()   
     return render_template('index.html', account_overview=account_overview, open_positions=checked_open_positions, open_margin_orders=open_margin_orders)
 
 @app.route('/ajaxfile', methods=['GET', 'POST'])                                                                                  
@@ -204,6 +205,7 @@ def webhook():
             trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
             order_response = exchange_client.long_order(quantity,coin_pair)
             exchange_client.set_long_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
+            exchange_client.set_order(order_response)
 
         elif signal == "ENTRY SHORT":
 
@@ -219,6 +221,7 @@ def webhook():
             trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
             order_response = exchange_client.long_order(quantity,coin_pair)
             exchange_client.set_short_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
+            exchange_client.set_order(order_response)
 
     elif signal == "EXIT LONG":
 
@@ -226,6 +229,9 @@ def webhook():
         quantity = exchange_client.check_is_sl_hit(coin_pair)
         order_response = exchange_client.exit_long(coin_pair,quantity)
         logger.debug("DEBUG")
+        logger.debug(order_response)
+        logger.debug("DEBUG")
+        exchange_client.set_stop_loss(order_response)
 
     elif signal == "EXIT SHORT":
         
@@ -233,6 +239,9 @@ def webhook():
         quantity = exchange_client.check_is_sl_hit(coin_pair)
         order_response = exchange_client.exit_short(coin_pair,quantity)
         logger.debug("DEBUG")
+        logger.debug(order_response)
+        logger.debug("DEBUG")
+        exchange_client.set_stop_loss(order_response)
 
     else:
         return "An error occured, can read the signal"
