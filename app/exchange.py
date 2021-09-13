@@ -5,6 +5,8 @@ import logging
 from datetime import datetime
 from binance.enums import *
 from binance.client import Client
+import firebase_admin
+from firebase_admin import firestore
 
 # * ###########################################################################
 # * LOGGING INSTATIATION RETURNING ON CONSOLE
@@ -16,6 +18,12 @@ logger = logging.getLogger(__name__)
 # * CONFIG INSTATIATION RETURNING ON CONSOLE
 # * ###########################################################################
 vault = config.ConfigClient()
+
+# * ###########################################################################
+# * LOGGING INSTATIATION RETURNING ON CONSOLE
+# * ###########################################################################
+logger = logging.getLogger(__name__)
+firebase_admin.initialize_app()
 
 # * ###########################################################################
 # * Class ExchangeClient
@@ -274,3 +282,76 @@ class ExchangeClient:
         except Exception as e:
                 logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return quantity
+
+    def set_debug(self, method):
+        
+        db = firestore.Client()
+        newActivity = db.collection(u'debug').document()
+        now = datetime.now()
+        logger.debug("👇👇👇👇👇 - newActivity - 👇👇👇👇👇 ")        
+        logger.debug(method)
+        logger.debug("👆👆👆👆👆 - newActivity - 👆👆👆👆👆 ")      
+
+        try:
+            newActivity.set(
+                {
+                    u'text': 'New activity',
+                    u'method': method,
+                    u'time': now.strftime("%m/%d/%Y, %H:%M:%S"),
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            print(newActivity)
+        }
+    
+    def set_stop_loss(self, order_response):
+        
+        db = firestore.Client()
+        stop_loss_order = db.collection(u'stop_loss_order').document()
+        now = datetime.now()
+        logger.debug("👇👇👇👇👇 - stop_loss_order - 👇👇👇👇👇 ")        
+        logger.debug(order_response)
+        logger.debug("👆👆👆👆👆 - stop_loss_order - 👆👆👆👆👆 ")      
+
+        try:
+            stop_loss_order.set(
+                {
+                    u'order_response': order_response,
+                    u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            print(stop_loss_order)
+        }
+
+    def set_order(self, order_response):
+        
+        db = firestore.Client()
+        entry_order = db.collection(u'entry_order').document()
+        now = datetime.now()
+        logger.debug("👇👇👇👇👇 - set_order - 👇👇👇👇👇 ")        
+        logger.debug(order_response)
+        logger.debug("👆👆👆👆👆 - set_order - 👆👆👆👆👆 ")      
+
+        try:
+            entry_order.set(
+                {
+                    u'order_response': order_response,
+                    u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            print(entry_order)
+        }
