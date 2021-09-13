@@ -3,8 +3,6 @@ import json
 from datetime import datetime
 from binance.client import Client
 from binance.enums import *
-import firebase_admin
-from firebase_admin import credentials, firestore
 import logging
 import math
 
@@ -12,7 +10,6 @@ import math
 # * LOGGING INSTATIATION RETURNING ON CONSOLE
 # * ###########################################################################
 logger = logging.getLogger(__name__)
-firebase_admin.initialize_app()
 
 # * ###########################################################################
 # * CONFIG CLASS INSTATIATION
@@ -128,8 +125,8 @@ class CalculateClient:
                                             "portion_size": portion_size, "side": side, "rate": coin_rate,
                                             "sl_id": sl_id}
                 json.dump(running_orders, outfile, indent=2)  # dump
-                append_running_trades_firestore(
-                    coinpair, interval, quantity, portion_size, side, coin_rate, sl_id)
+                # append_running_trades_firestore(
+                #     coinpair, interval, quantity, portion_size, side, coin_rate, sl_id)
 
         except Exception as e:
             print("an exception occured - {}".format(e))
@@ -155,8 +152,8 @@ class CalculateClient:
                 all_trades[time_now] = {"coinpair": coinpair, "interval": interval, "quantity": quantity,
                                         "portion_size": portion_size, "side": side, "Profit": profit}
                 json.dump(all_trades, outfile, indent=2)
-                append_all_trades_firestore(
-                    coinpair, interval, quantity, portion_size, side, profit)
+                # append_all_trades_firestore(
+                #     coinpair, interval, quantity, portion_size, side, profit)
         except Exception as e:
             print("an exception occured - {}".format(e))
 
@@ -380,31 +377,31 @@ class CalculateClient:
                 return order
 
     
-    def get_Active_Trades(self):
-        print("🚀 ENTROU readRunningTrades ---------------")
-        db = firestore.Client()
-        docs = []
-        runningTradesData = db.collection(u'active_trades').stream()
-        for doc in runningTradesData:
-            print("🚀 ENTROU no SIDE do readRunningTrades -------")
-            print(doc.get('side'))
-            print("🚀 ENTROU no SIDE do readRunningTrades -------")
-            docs.append(doc.to_dict())
-        return docs
+    # def get_Active_Trades(self):
+    #     print("🚀 ENTROU readRunningTrades ---------------")
+    #     db = firestore.Client()
+    #     docs = []
+    #     runningTradesData = db.collection(u'active_trades').stream()
+    #     for doc in runningTradesData:
+    #         print("🚀 ENTROU no SIDE do readRunningTrades -------")
+    #         print(doc.get('side'))
+    #         print("🚀 ENTROU no SIDE do readRunningTrades -------")
+    #         docs.append(doc.to_dict())
+    #     return docs
 
-    def get_Closed_Trades(self):
-        print("🚀 ENTROU readTradeObject ---------------")
-        db = firestore.Client()
-        trades = []
-        trades_doc_ref_list = db.collection(u'closed_trades').stream()
-        for trade_doc_ref in trades_doc_ref_list:
-            print("🚀 ENTROU no FOR do get_TradeObject_List -------")
-            # trade_doc = trade_doc_ref.get(trade_doc_ref.id)
-            trade = Trade.from_dict(trade_doc_ref.to_dict())
-            print(trade)
-            print("🚀 ENTROU no FOR do get_TradeObject_List -------")
-            trades.append(trade)
-        return trades
+    # def get_Closed_Trades(self):
+    #     print("🚀 ENTROU readTradeObject ---------------")
+    #     db = firestore.Client()
+    #     trades = []
+    #     trades_doc_ref_list = db.collection(u'closed_trades').stream()
+    #     for trade_doc_ref in trades_doc_ref_list:
+    #         print("🚀 ENTROU no FOR do get_TradeObject_List -------")
+    #         # trade_doc = trade_doc_ref.get(trade_doc_ref.id)
+    #         trade = Trade.from_dict(trade_doc_ref.to_dict())
+    #         print(trade)
+    #         print("🚀 ENTROU no FOR do get_TradeObject_List -------")
+    #         trades.append(trade)
+    #     return trades
         # Check how many decimals are allowed per coinpair, 
         # tickSize = allowed decimals in price range
         # stepSize = allowed decimals in quantity range
@@ -428,77 +425,77 @@ class CalculateClient:
         quantity = "{:0.0{}f}".format(float(quantity), step_size)
         return str(int(quantity)) if int(step_size) == 0 else quantity
 
-def append_running_trades_firestore(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id):
+# def append_running_trades_firestore(coinpair, interval, quantity, portion_size, side, coin_rate, sl_id):
 
-    db = firestore.Client()
-    newTrade = db.collection(u'active_trades').document()
-    newActivity = db.collection(u'activity').document()
-    now = datetime.now()
+#     db = firestore.Client()
+#     newTrade = db.collection(u'active_trades').document()
+#     newActivity = db.collection(u'activity').document()
+#     now = datetime.now()
 
-    try:
-        newTrade.set(
-            {
-                u'coinpair': coinpair,
-                u'interval': interval,
-                u'quantity': quantity,
-                u'portion_size': portion_size,
-                u'side': side,
-                u'coin_rate': coin_rate,
-                u'sl_id': sl_id,
-                u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
-            }
-        )  # wait for table load to complete.
-        newActivity.set(
-            {
-                u'text': 'A new trade was made',
-                u'side': side,
-                u'time': now.strftime("%m/%d/%Y, %H:%M:%S"),
-            }
-        )
-    except Exception as e:
-        print("an exception occured - {}".format(e))
-        return False
+#     try:
+#         newTrade.set(
+#             {
+#                 u'coinpair': coinpair,
+#                 u'interval': interval,
+#                 u'quantity': quantity,
+#                 u'portion_size': portion_size,
+#                 u'side': side,
+#                 u'coin_rate': coin_rate,
+#                 u'sl_id': sl_id,
+#                 u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+#             }
+#         )  # wait for table load to complete.
+#         newActivity.set(
+#             {
+#                 u'text': 'A new trade was made',
+#                 u'side': side,
+#                 u'time': now.strftime("%m/%d/%Y, %H:%M:%S"),
+#             }
+#         )
+#     except Exception as e:
+#         print("an exception occured - {}".format(e))
+#         return False
 
-    return {
-        print(coinpair+" "+interval+" "+quantity+" " +
-              portion_size+" "+side+" "+coin_rate+" "+sl_id)
-    }
+#     return {
+#         print(coinpair+" "+interval+" "+quantity+" " +
+#               portion_size+" "+side+" "+coin_rate+" "+sl_id)
+#     }
 
 
-def append_all_trades_firestore(coinpair, interval, quantity, portion_size, side, profit):
+# def append_all_trades_firestore(coinpair, interval, quantity, portion_size, side, profit):
 
-    db = firestore.Client()
-    newTrade = db.collection(u'closed_trades').document()
-    newActivity = db.collection(u'activity').document()
-    now = datetime.now()
+#     db = firestore.Client()
+#     newTrade = db.collection(u'closed_trades').document()
+#     newActivity = db.collection(u'activity').document()
+#     now = datetime.now()
 
-    try:
-        newTrade.set(
-            {
-                u'coinpair': coinpair,
-                u'interval': interval,
-                u'quantity': quantity,
-                u'portion_size': portion_size,
-                u'side': side,
-                u'coin_rate': profit,
-                u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
-            }
-        )  # wait for table load to complete.
-        newActivity.set(
-            {
-                u'text': 'A new trade was made',
-                u'side': side,
-                u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
-            }
-        )
-    except Exception as e:
-        print("an exception occured - {}".format(e))
-        return False
+#     try:
+#         newTrade.set(
+#             {
+#                 u'coinpair': coinpair,
+#                 u'interval': interval,
+#                 u'quantity': quantity,
+#                 u'portion_size': portion_size,
+#                 u'side': side,
+#                 u'coin_rate': profit,
+#                 u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+#             }
+#         )  # wait for table load to complete.
+#         newActivity.set(
+#             {
+#                 u'text': 'A new trade was made',
+#                 u'side': side,
+#                 u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+#             }
+#         )
+#     except Exception as e:
+#         print("an exception occured - {}".format(e))
+#         return False
 
-    return {
-        print(coinpair+" "+interval+" "+quantity +
-              " "+portion_size+" "+side+" "+profit)
-    }
+#     return {
+#         print(coinpair+" "+interval+" "+quantity +
+#               " "+portion_size+" "+side+" "+profit)
+#     }
 
 # [START custom_class_def]
 # [START firestore_data_custom_type_definition]
