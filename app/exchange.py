@@ -9,18 +9,18 @@ import firebase_admin
 from firebase_admin import firestore
 
 # * ###########################################################################
-# * LOGGING INSTATIATION RETURNING ON CONSOLE
+# * LOGGING INSTANTIATION RETURNING ON CONSOLE
 # * ###########################################################################
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # * ###########################################################################
-# * CONFIG INSTATIATION RETURNING ON CONSOLE
+# * CONFIG INSTANTIATION RETURNING ON CONSOLE
 # * ###########################################################################
 vault = config.ConfigClient()
 
 # * ###########################################################################
-# * LOGGING INSTATIATION RETURNING ON CONSOLE
+# * LOGGING INSTANTIATION RETURNING ON CONSOLE
 # * ###########################################################################
 logger = logging.getLogger(__name__)
 firebase_admin.initialize_app()
@@ -38,6 +38,7 @@ class ExchangeClient:
     # * Function get_account_overview implements the original API method
     # * https://bit.ly/binanceCode#binance.client.Client.get_margin_account
     def get_account_overview(self):
+        account_overview = None
         try:
             account_overview = self.binance_client.get_margin_account()
             position_size = float (account_overview["totalAssetOfBtc"])
@@ -83,16 +84,23 @@ class ExchangeClient:
     # * #######################################################################
     # * Function get_open_positions
     def get_open_positions(self,margin_account):
+        open_positions = []
         try:
             user_assets = margin_account["userAssets"]
             open_positions = []
+            tradable_assets = []
             for asset in user_assets:
                 position_size = float (asset["netAsset"])
+                tradable_assets.append(asset["asset"])
                 if position_size != 0:
                     open_positions.append(asset)
             logger.debug("👇👇👇👇👇 - open_positions - 👇👇👇👇👇 ")        
             logger.debug(open_positions)
-            logger.debug("👆👆👆👆👆 - open_positions - 👆👆👆👆👆 ")    
+            logger.debug("👆👆👆👆👆 - open_positions - 👆👆👆👆👆 ")  
+            logger.debug("👇👇👇👇👇 - tradable_assets - 👇👇👇👇👇 ")        
+            logger.debug(tradable_assets)
+            logger.debug("👆👆👆👆👆 - tradable_assets - 👆👆👆👆👆 ") 
+            self.set_tradable_assets(tradable_assets) 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return open_positions
@@ -178,17 +186,17 @@ class ExchangeClient:
             return float(quantity)
 
         except Exception as e:
-            print("an exception occured - {}".format(e))
+            print("an exception occurred - {}".format(e))
     
     def get_tick_and_step_size(self, symbol):
         tick_size = None
         step_size = None
         symbol_info = self.binance_client.get_symbol_info(symbol)
-        for filt in symbol_info['filters']:
-            if filt['filterType'] == 'PRICE_FILTER':
-                tick_size = float(filt['tickSize'])
-            if filt['filterType'] == 'LOT_SIZE':
-                step_size = float(filt['stepSize'])
+        for filter in symbol_info['filters']:
+            if filter['filterType'] == 'PRICE_FILTER':
+                tick_size = float(filter['tickSize'])
+            if filter['filterType'] == 'LOT_SIZE':
+                step_size = float(filter['stepSize'])
         return tick_size, step_size
 
         # Round the quantity or price range, with the actual allowed decimals
@@ -265,7 +273,7 @@ class ExchangeClient:
         quantity = 0
         asset = coinpair.replace("USDT","")
         try:
-            # TODO testar quando não tem ordem aberta
+            # TODO test when there is no open order
             account_overview = self.get_account_overview()
             open_positions = self.get_open_positions(account_overview)
             open_orders = self.get_open_margin_orders()
@@ -355,3 +363,182 @@ class ExchangeClient:
         return {
             print(entry_order)
         }
+
+    def set_account_overview(self, account_overview):
+        
+        db = firestore.Client()
+        entry_order = db.collection(u'account_overview').document()
+        now = datetime.now()
+        logger.debug("👇👇👇👇👇 - account_overview - 👇👇👇👇👇 ")        
+        logger.debug(account_overview)
+        logger.debug("👆👆👆👆👆 - account_overview - 👆👆👆👆👆 ")      
+
+        try:
+            entry_order.set(
+                {
+                    u'account_overview': account_overview,
+                    u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            print(account_overview)
+        }
+    
+    def set_open_margin_orders(self, open_margin_orders):
+        
+        db = firestore.Client()
+        self.delete_open_margin_orders()
+        open_margin_orders_collection = db.collection(u'open_margin_orders').document()
+        logger.debug("👇👇👇👇👇 - set_open_margin_orders - 👇👇👇👇👇 ")        
+        logger.debug(open_margin_orders_collection)
+        logger.debug("👆👆👆👆👆 - set_open_margin_orders - 👆👆👆👆👆 ")      
+
+        try:
+            open_margin_orders_collection.set(
+                {
+                    u'open_margin_orders': open_margin_orders
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            logger.debug("👇👇👇👇👇 - set_open_margin_orders successful - 👇👇👇👇👇 ")   
+        }
+
+    def set_checked_open_position(self, open_position):
+            
+        db = firestore.Client()        
+        checked_open_positions_collection = db.collection(u'checked_open_positions').document()
+        logger.debug("👇👇👇👇👇 - set_checked_open_positions - 👇👇👇👇👇 ")        
+        logger.debug(open_position)
+        logger.debug("👆👆👆👆👆 - set_checked_open_positions - 👆👆👆👆👆 ")
+        now = datetime.now()      
+
+        try:
+            checked_open_positions_collection.set(
+                {
+                    u'asset': open_position['asset'] ,
+                    u'position_value_in_dollar': open_position['position_value_in_dollar'] ,
+                    u'netAsset': open_position['netAsset'] ,
+                    u'borrowed': open_position['borrowed'] ,
+                    u'free': open_position['free'] ,
+                    u'interest': open_position['interest'] ,
+                    u'locked': open_position['locked'] ,
+                    u'has_stop_loss': open_position['has_stop_loss'] ,
+                    u'icon': None 
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            logger.debug("👇👇👇👇👇 - set_checked_open_positions successful - 👇👇👇👇👇 ")   
+        }    
+
+    def set_tradable_assets(self, tradable_list):
+            
+        db = firestore.Client()
+        tradable_assets = db.collection(u'tradable_assets').document()
+        now = datetime.now()
+        logger.debug("👇👇👇👇👇 - tradable_list - 👇👇👇👇👇 ")        
+        logger.debug(tradable_list)
+        logger.debug("👆👆👆👆👆 - tradable_list - 👆👆👆👆👆 ")      
+
+        try:
+            tradable_assets.set(
+                {
+                    u'tradable_list': tradable_list,
+                    u'time_now': now.strftime("%m/%d/%Y, %H:%M:%S"),
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            print(tradable_assets)
+        }
+    
+    def get_Active_Trades(self):
+        print("🚀 RUNNING get_Active_Trades ---------------")
+        db = firestore.Client()
+        docs = []
+        runningTradesData = db.collection(u'active_trades').stream()
+        for doc in runningTradesData:
+            logger.debug("👇👇👇👇👇 - get_Active_Trades - 👇👇👇👇👇 ")        
+            logger.debug(doc)
+            logger.debug("👆👆👆👆👆 - get_Active_Trades - 👆👆👆👆👆 ") 
+            docs.append(doc.to_dict())
+        return docs
+    
+    def get_open_margin_orders_firebase(self):
+        print("🚀 RUNNING get_open_margin_orders ---------------")
+        db = firestore.Client()
+        docs = []
+        open_margin_orders_collection = db.collection(u'open_margin_orders').stream()
+        for doc in open_margin_orders_collection:
+            open_margin_orders = doc.to_dict()
+            open_orders_list = open_margin_orders["open_margin_orders"]
+            for open_order in open_orders_list:
+                logger.debug("👇👇👇👇👇 - get_open_margin_orders - 👇👇👇👇👇 ")        
+                logger.debug(open_order)
+                logger.debug("👆👆👆👆👆 - get_open_margin_orders - 👆👆👆👆👆 ") 
+                docs.append(open_order)
+        return docs
+    
+    def get_checked_open_positions_firebase(self):
+        print("🚀 RUNNING get_checked_open_positions_firebase ---------------")
+        db = firestore.Client()
+        docs = []
+        checked_open_positions_collection = db.collection(u'checked_open_positions').stream()
+        for doc in checked_open_positions_collection:            
+            logger.debug("👇👇👇👇👇 - checked_open_positions - 👇👇👇👇👇 ")        
+            logger.debug(doc.to_dict())
+            logger.debug("👆👆👆👆👆 - checked_open_positions - 👆👆👆👆👆 ") 
+            docs.append(doc.to_dict())
+        return docs
+
+    def delete_open_margin_orders(self):
+        db = firestore.Client()
+
+        # [START firestore_data_delete_collection]
+        def delete_collection(coll_ref, batch_size):
+            docs = coll_ref.limit(batch_size).stream()
+            deleted = 0
+
+            for doc in docs:
+                print(f'Deleting doc {doc.id} => {doc.to_dict()}')
+                doc.reference.delete()
+                deleted = deleted + 1
+
+            if deleted >= batch_size:
+                return delete_collection(coll_ref, batch_size)
+        # [END firestore_data_delete_collection]
+
+        delete_collection(db.collection(u'open_margin_orders'), 10)
+    
+    def delete_checked_open_positions(self):
+        db = firestore.Client()
+
+        # [START firestore_data_delete_collection]
+        def delete_collection(coll_ref, batch_size):
+            docs = coll_ref.limit(batch_size).stream()
+            deleted = 0
+
+            for doc in docs:
+                print(f'Deleting doc {doc.id} => {doc.to_dict()}')
+                doc.reference.delete()
+                deleted = deleted + 1
+
+            if deleted >= batch_size:
+                return delete_collection(coll_ref, batch_size)
+        # [END firestore_data_delete_collection]
+
+        delete_collection(db.collection(u'checked_open_positions'), 10)
