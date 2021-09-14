@@ -289,7 +289,8 @@ firebase init hosting
 5. Create a new Pull Request
 
 ## Version History
-
+* 0.0.3
+  * Layout enchancements
 * 0.0.2
   * New look and feel
   * Bug fix - stop loss not being created
