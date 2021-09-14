@@ -9,23 +9,23 @@ from flask import Flask, request, render_template, jsonify, json
 from werkzeug.utils import redirect
 
 # * ###########################################################################
-# * LOGGING INSTATIATION RETURNING ON CONSOLE
+# * LOGGING INSTANTIATION RETURNING ON CONSOLE
 # * ###########################################################################
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # * ###########################################################################
-# * CONFIG CLASS INSTATIATION
+# * CONFIG CLASS INSTANTIATION
 # * ###########################################################################
 config_client = config.ConfigClient()
 
 # * ###########################################################################
-# * CALCULATE CLASS INSTATIATION
+# * CALCULATE CLASS INSTANTIATION
 # * ###########################################################################
 calculate_client = calculate.CalculateClient()
 
 # * ###########################################################################
-# * EXCHANGE CLASS INSTATIATION
+# * EXCHANGE CLASS INSTANTIATION
 # * ###########################################################################
 exchange_client = exchange.ExchangeClient()
 
@@ -36,132 +36,80 @@ exchange_client = exchange.ExchangeClient()
 @app.route('/', methods=['GET', 'POST'])
 def welcome():    
     account_overview = exchange_client.get_account_overview()
+    exchange_client.set_account_overview(account_overview)
     open_positions = exchange_client.get_open_positions(account_overview)
     open_margin_orders = exchange_client.get_open_margin_orders()
-    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders)  
-    return render_template('index.html', account_overview=account_overview, open_positions=checked_open_positions, open_margin_orders=open_margin_orders)
+    exchange_client.set_open_margin_orders(open_margin_orders)
+    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders)
+    exchange_client.delete_checked_open_positions()  
+    for open_position in checked_open_positions:
+        exchange_client.set_checked_open_position(open_position)
+    template = render_template('index.html', account_overview=account_overview, open_positions=checked_open_positions, open_margin_orders=open_margin_orders)
+    return template
 
-@app.route('/ajaxfile', methods=['GET', 'POST'])                                                                                  
-def ajaxfile():
-    account_overview = exchange_client.get_account_overview()
-    open_positions = exchange_client.get_open_positions(account_overview)
-    open_margin_orders = exchange_client.get_open_margin_orders()
-    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders) 
+@app.route('/openorders', methods=['GET', 'POST'])                                                                                  
+def openorders():    
 
-    if request.method == 'POST':
-        draw = request.form['draw'] 
-        row = int(request.form['start'])
-        rowperpage = int(request.form['length'])
-        searchValue = request.form['search[value]']
-
+    if request.method == 'POST': 
+        open_margin_orders = exchange_client.get_open_margin_orders_firebase()
         data = []
-        totalRecords = len(checked_open_positions)
-        for openposition in checked_open_positions:
-            teste1 = openposition["asset"]
-            teste2 = openposition["position_value_in_dollar"]
-            teste3 = openposition["netAsset"]
-            teste4 = openposition["borrowed"]
-            teste5 = openposition["free"]
-            teste6 = openposition["interest"]
-            teste7 = openposition["locked"]
-            teste8 = openposition["has_stop_loss"]
-            if teste8 == "true":
-                teste8 = "<i class=\"far fa-thumbs-up\"></i>"
-            else:
-                teste8 = "<i class=\"far fa-ban\"></i>"    
-            teste9 = "<i class=\"cf cf-"+teste1.lower()+"\"></i>"
+        for open_margin_order in open_margin_orders:
+            symbol = open_margin_order["symbol"]
+            side = open_margin_order["side"]
+            quantity = open_margin_order["origQty"]
+            stop_price = open_margin_order["stopPrice"]
+            update_time = open_margin_order["updateTime"]
+            order_id = open_margin_order["orderId"]
             data.append({
-                'asset': teste1 ,
-                'position_value_in_dollar': teste2 ,
-                'netAsset': teste3 ,
-                'borrowed': teste4 ,
-                'free': teste5 ,
-                'interest': teste6 ,
-                'locked': teste7 ,
-                'has_stop_loss': teste8 ,
-                'icon': teste9 
+                'symbol': symbol ,
+                'side': side ,
+                'origQty': quantity ,
+                'stopPrice': stop_price ,
+                'updateTime': update_time ,
+                'orderId': order_id
             })
         
         response = {
-            'draw': draw,
-            'iTotalRecords': totalRecords,
-            'iTotalDisplayRecords': 20,
-            'aaData': data,
+            'aaData': data
         }
         return jsonify(response)
 
-# * ###########################################################################
-# * ROUTE TO WEBHOOK TEST
-# * ###########################################################################
-@app.route('/webhooktest', methods=['POST'])
-def webhooktest():
+@app.route('/ajaxfile', methods=['GET', 'POST'])                                                                                  
+def ajaxfile():
+    checked_open_positions = exchange_client.get_checked_open_positions_firebase()
+
+    if request.method == 'POST':
+        data = []
+        for openposition in checked_open_positions:
+            asset = openposition["asset"]
+            position_value_in_dollar = openposition["position_value_in_dollar"]
+            netAsset = openposition["netAsset"]
+            borrowed = openposition["borrowed"]
+            free = openposition["free"]
+            interest = openposition["interest"]
+            locked = openposition["locked"]
+            has_stop_loss = openposition["has_stop_loss"]
+            if has_stop_loss == "true":
+                has_stop_loss = "<i class=\"far fa-thumbs-up\"></i>"
+            else:
+                has_stop_loss = "<i class=\"far fa-ban\"></i>"    
+            icon = "<i class=\"cf cf-"+asset.lower()+"\"></i>"
+            data.append({
+                'asset': asset ,
+                'position_value_in_dollar': position_value_in_dollar ,
+                'netAsset': netAsset ,
+                'borrowed': borrowed ,
+                'free': free ,
+                'interest': interest ,
+                'locked': locked ,
+                'has_stop_loss': has_stop_loss ,
+                'icon': icon 
+            })
         
-    data = {}
-    try:
-        data = json.loads(request.data)
-    except Exception as e:
-        logger.error("an exception occured - {}".format(e))
-        return {"code": "error",
-                "message": "Unable to read webhook"}
-
-    if data['password'] != config_client.PASSWORD:
-        return {
-            "code": "error",
-            "message": "Nice try, invalid passphrase"
+        response = {
+            'aaData': data
         }
-
-    interval = data['interval']
-    coin_pair = data['ticker']
-    signal = data['signal']
-    stop_price = 0
-    if signal == "ENTRY LONG" or signal == "ENTRY SHORT":
-        stop_price = data['stopprice']
-        entry_price = data['entryprice']
-        usdt_balance = calculate_client.get_usdt_balance()
-        if signal == "ENTRY LONG":
-
-            sl_percent = round((1 - (stop_price / entry_price)), 4)
-            portion_size = calculate_client.portion_size(usdt_balance, sl_percent)
-
-            quantity = calculate_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            side = "BUY"
-            order_response = calculate_client.long_order(side, quantity, coin_pair, interval, portion_size, stop_price, sl_percent)
-
-        elif signal == "ENTRY SHORT":
-
-            sl_percent = round(((stop_price / entry_price) - 1), 4)
-            portion_size = calculate_client.portion_size(usdt_balance, sl_percent)
-            quantity = calculate_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            side = "SELL"
-            order_response = calculate_client.short_order(side, quantity, coin_pair, interval, portion_size, stop_price, sl_percent)
-
-    elif signal == "EXIT LONG":
-        side = "SELL"
-        quantity = 0
-        portion_size = 0
-        order_response = calculate_client.long_order(side, quantity, coin_pair, interval, portion_size, stop_price, sl_percentage=0)
-
-
-    elif signal == "EXIT SHORT":
-        side = "BUY"
-        quantity = 0
-        portion_size = 0
-        order_response = calculate_client.short_order(side, quantity, coin_pair, interval, portion_size, stop_price, sl_percentage=0)
-    else:
-        return "An error occured, can read the signal"
-
-    if order_response:
-        return {
-            "code": "success",
-            "message": "order executed"
-        }
-    else:
-        logger.error("order failed")
-
-        return {
-            "code": "error",
-            "message": "order failed"
-        }
+        return jsonify(response)
 
 # * ###########################################################################
 # * ROUTE TO WEBHOOK
@@ -172,7 +120,7 @@ def webhook():
     try:
         data = json.loads(request.data)
     except Exception as e:
-        logger.error("an exception occured - {}".format(e))
+        logger.error("an exception occurred - {}".format(e))
         return {"code": "error",
                 "message": "Unable to read webhook"}
 
@@ -192,7 +140,7 @@ def webhook():
         usdt_balance = exchange_client.get_usdt_balance()
         if signal == "ENTRY LONG":
 
-            # TODO entry_long - preciso quantity e symbol
+            # TODO entry_long - need quantity and symbol
             sl_percent = round((1 - (stop_price / entry_price)), 4)
             portion_size = exchange_client.portion_size(usdt_balance, sl_percent)
             quantity = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
@@ -243,7 +191,7 @@ def webhook():
         exchange_client.set_stop_loss(order_response)
 
     else:
-        return "An error occured, can read the signal"
+        return "An error occurred, can read the signal"
 
     if order_response:
         return {

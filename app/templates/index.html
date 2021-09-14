@@ -125,10 +125,10 @@
                 </tr>
               </thead>
             </table>
-          </div>
-            <h2>Open Orders</h2>
+          </div>            
+          <h2>Open Orders</h2>
           <div class="table-responsive">
-            <table class="table table-striped table-sm">
+            <table id="openOrders" class="table table-striped table-sm">
               <thead>
                 <tr>
                   <th>Pair</th>
@@ -138,19 +138,7 @@
                   <th>Date and Time</th>
                   <th>OrderID</th>
                 </tr>
-              </thead>
-              {% for open_margin_order in open_margin_orders %}
-              <tbody>
-                <tr>
-                  <td> {{ open_margin_order.symbol }} </td>
-                  <td> {{ open_margin_order.side }} </td>
-                  <td> {{ open_margin_order.origQty }} </td>
-                  <td> {{ open_margin_order.price }} </td>
-                  <td> {{ open_margin_order.time }} </td>
-                  <td> {{ open_margin_order.orderId }} </td>
-                </tr>
-              {% endfor %}
-              </tbody>
+              </thead>  
             </table>
           </div>
         </main>
@@ -168,20 +156,42 @@
     </script>
     <script>
       $(document).ready(function() {
-          var empDataTable = $('#empTable').DataTable({
-              'serverMethod': 'post',
+          $('#myTable').DataTable( {
+              "order": [[ 0, "asc" ]]
+          } );
+          $('#openOrders').DataTable( {
+              "order": [[ 0, "asc" ]],
               'processing': true,
-              'serverSide': true,
-              'serveMethod': 'POST',
               'bPaginate': false,
               'bLengthChange': false,
               'bFilter': false,
               'bInfo': false,
               'ajax': {
-                  'url': '/ajaxfile'
+                  'url': '/openorders',
+                  'type': 'POST'
               },
                 searching: false,
-                sort: false,
+                'columns': [
+                { 'data': 'symbol' },
+                { 'data': 'side' },
+                { 'data': 'origQty' },
+                { 'data': 'stopPrice' },
+                { 'data': 'updateTime' },
+                { 'data': 'orderId' }
+              ]
+          } );
+          var empDataTable = $('#empTable').DataTable({
+              "order": [[ 1, "asc" ]],
+              'processing': true,
+              'bPaginate': false,
+              'bLengthChange': false,
+              'bFilter': false,
+              'bInfo': false,
+              'ajax': {
+                  'url': '/ajaxfile',
+                  'type': 'POST'
+              },
+                searching: false,
                 'columns': [
                 {
                     'data': 'icon',

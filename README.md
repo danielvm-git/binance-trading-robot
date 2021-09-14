@@ -170,7 +170,7 @@ Open the source code folder with VSCode and edit the files to put your keys on
  
 #### create de build
 Open a Terminal inside your VSCode.
-If it's not on you projec folder you first go to the folder where you cloned the repository
+If it's not on you project folder you first go to the folder where you cloned the repository
 ```bash
 cd "your_project" folder
 ````
@@ -209,13 +209,13 @@ use this command:
 firebase init hosting
 ```
 ### That's it!
-Go to [Google Cloud Console](https://console.cloud.google.com/) -> Cloud Run and the adress of the service created is your webhook. Just use it on your TradingView with MM indicator
+Go to [Google Cloud Console](https://console.cloud.google.com/) -> Cloud Run and the address of the service created is your webhook. Just use it on your TradingView with MM indicator
  
 ## Running the tests 
 #### Webhook
- * You can also use [Insominia](https://insomnia.rest/) to simulate TradingView sending a POST to your webhook
-     * Find examples of how the json shold be strectured [here](https://github.com/danielvm-git/binance-trading-robot/tree/main/server/src/Webhook)
-     * The same json shold be used inside you alert on TradingView
+ * You can also use [Insomnia](https://insomnia.rest/) to simulate TradingView sending a POST to your webhook
+     * Find examples of how the json should be structured [here](https://github.com/danielvm-git/binance-trading-robot/tree/main/server/src/Webhook)
+     * The same json should be used inside you alert on TradingView
 
 #### Local Test
  * You can also run the firebase server and test locally. The result of the command bellow will be a localhost address
@@ -236,6 +236,16 @@ gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here
 firebase deploy --only hosting
 ``` 
 ## Help
+### Troubleshooting
+if the docker doesn't run try cleaning minikube and starting the service again
+```bash
+minikube delete --all
+```
+if the build fail try resetting the connections with gcloud, it happens sometimes at the begging of a coding session
+```bash
+gcloud auth application-default login
+```
+
 ### What I did to get here 
 Those where my notes during the process, it's a mess but maybe can help you
 #### Followed the video
@@ -247,7 +257,7 @@ The idea is to run @amfchef's code on this structure instead of the presenter's 
 * Moved original files and replace the ones on my the application I built watching the video. Created the function binance-trading-robot-fire on Cloud Run
 #### Created the Docker
 * Created docker file like you see on the video then you add this to the RUN line:  
-python-binance binance Werkzeug google-cloud google-cloud-bigquery google-cloud-secret-manager firebase-admin pandas pyarrow
+python-binance binance Werkzeug google-cloud google-cloud-secret-manager firebase-admin
 #### Put my keys
 * Edited the config files and put my keys on
 
@@ -269,6 +279,7 @@ gcloud run deploy binance-trading-robot-fire --image gcr.io/binance-trading-robo
 ```bash
 firebase init hosting
 ```
+
 ## Contributing
 
 1. Fork it (<https://github.com/danielvm-git/binance-trading-robot/fork>)
