@@ -114,3 +114,5 @@ dmypy.json
 .pyre/
 server/src/serviceAccountKey.json
 *.cache
+.vscode/settings.json
+static/images/.DS_Store
