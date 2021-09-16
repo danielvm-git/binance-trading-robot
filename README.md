@@ -172,6 +172,18 @@ Open the source code folder with VSCode and edit the files to put your keys on
 Create the project on firebase 
 go to https://firebase.google.com/ and create a new project to host the role thing
 * 2nd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+* change the rules on firestore database to be like that
+```bash
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read;
+      allow write: if false;
+    }
+  }
+}
+````
  
 #### create de build
 Open a Terminal inside your VSCode.
