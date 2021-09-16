@@ -33,6 +33,7 @@ class ExchangeClient:
     def __init__(self):
         self.RISK_FACTOR = 0.01
         self.binance_client = Client(vault.API_KEY, vault.API_SECRET)
+        self.base_currency = "BTCUSDT"
     
     # * #######################################################################
     # * Function get_account_overview implements the original API method
@@ -40,31 +41,50 @@ class ExchangeClient:
     def get_account_overview(self):
         account_overview = None
         try:
+            #get account overview
             account_overview = self.binance_client.get_margin_account()
-            position_size = float (account_overview["totalAssetOfBtc"])
-            margin_level = float (account_overview["marginLevel"])
-            margin_level = round(margin_level,2)
-            symbol = "BTCUSDT"
-            margin_price_index = self.get_margin_price_index(symbol)
-            position_value_in_dollar = self.calculate_position_value_in_dollar(margin_price_index,position_size)
-            account_overview["position_value_in_dollar"] = "${:,.2f}".format(position_value_in_dollar)
-            account_overview["tradeEnabled"] = str(account_overview["tradeEnabled"])
-            account_overview["transferEnabled"] = str(account_overview["transferEnabled"])
-            account_overview["borrowEnabled"] = str(account_overview["borrowEnabled"])
-            account_overview["marginLevel"] = str(margin_level)
-            logger.debug("👇👇👇👇👇 - account_overview - 👇👇👇👇👇 ")        
-            logger.debug(account_overview)
-            logger.debug("👆👆👆👆👆 - account_overview - 👆👆👆👆👆 ") 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return account_overview
-
+    
     # * #######################################################################
     # * Function get_open_margin_orders implements the original API method 
     # * https://bit.ly/binanceCode#binance.client.Client.get_open_margin_orders
     def get_open_margin_orders(self):
         try:
+            #get open margin orders
             open_margin_orders = self.binance_client.get_open_margin_orders()
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return open_margin_orders
+
+    # * #######################################################################
+    # * Function prepare_account_overview
+    def prepare_account_overview(self,account_overview):
+        try:
+            #round margin level
+            margin_level = float (account_overview["marginLevel"])
+            margin_level = round(margin_level,2)            
+            #calculate the position value in dollar
+            symbol = "BTCUSDT"
+            margin_price_index = self.get_margin_price_index(symbol)
+            position_size = float (account_overview["totalAssetOfBtc"])
+            position_value_in_dollar = self.calculate_position_value_in_dollar(margin_price_index,position_size)
+            #set account overview with the string of the values
+            account_overview["position_value_in_dollar"] = "${:,.2f}".format(position_value_in_dollar)
+            account_overview["tradeEnabled"] = str(account_overview["tradeEnabled"])
+            account_overview["transferEnabled"] = str(account_overview["transferEnabled"])
+            account_overview["borrowEnabled"] = str(account_overview["borrowEnabled"])
+            account_overview["marginLevel"] = str(margin_level)
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return account_overview
+    
+    # * #######################################################################
+    # * Function prepare_open_margin_orders 
+    def prepare_open_margin_orders(self, open_margin_orders):
+        try:
+            #convert from milliseconds, set date and time for each open order
             for open_margin_order in open_margin_orders:
                 time = int(open_margin_order["time"])
                 time = datetime.fromtimestamp(time/1000)
@@ -74,13 +94,20 @@ class ExchangeClient:
                 updateTime = updateTime.strftime("%m/%d/%Y, %H:%M:%S")
                 open_margin_order["time"] = time
                 open_margin_order["updateTime"] = updateTime
-            logger.debug("👇👇👇👇👇 - open_margin_orders - 👇👇👇👇👇 ")        
-            logger.debug(open_margin_orders)
-            logger.debug("👆👆👆👆👆 - open_margin_orders - 👆👆👆👆👆 ") 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return open_margin_orders
-
+    
+    # * #######################################################################
+    # * Function calculate_position_value_in_dollar
+    def calculate_position_value_in_dollar(self,price, size):
+        try:
+            position_value_in_dollar = float(price) * float(size)
+            position_value_in_dollar = round(position_value_in_dollar,2)  
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return position_value_in_dollar
+    
     # * #######################################################################
     # * Function get_open_positions
     def get_open_positions(self,margin_account):
@@ -103,18 +130,22 @@ class ExchangeClient:
             self.set_tradable_assets(tradable_assets) 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
-        return open_positions
+        return open_positions    
     
     # * #######################################################################
-    # * Function get_open_positions
+    # * Function has_stop_loss
     def has_stop_loss(self,open_positions,open_margin_orders):
         try:
             checked_open_positions = []
             for open_position in open_positions:
+                #prepare data to compare
                 position_size = float (open_position["netAsset"])
+                #prepare the symbol
                 symbol = open_position["asset"]
                 symbol = symbol + "USDT"
+                #get the price of symbol
                 margin_price_index = self.get_margin_price_index(symbol)
+                #calculate the position side in US dollar
                 position_value_in_dollar = self.calculate_position_value_in_dollar(margin_price_index,position_size)
                 position_value_in_dollar = "${:,.2f}".format(position_value_in_dollar)
                 if position_size != 0:
@@ -155,29 +186,22 @@ class ExchangeClient:
         return price
 
     # * #######################################################################
-    # * Function calculate_position_value_in_dollar
-    def calculate_position_value_in_dollar(self,price, size):
-        try:
-            position_value_in_dollar = float(price) * float(size)
-            position_value_in_dollar = round(position_value_in_dollar,2)
-            logger.debug("👇👇👇👇👇 - price_index - 👇👇👇👇👇 ")        
-            logger.debug(position_value_in_dollar)
-            logger.debug("👆👆👆👆👆 - price_index - 👆👆👆👆👆 ")    
-        except Exception as e:
-            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
-        return position_value_in_dollar
-    
+    # * Function 
     def get_usdt_balance(self):
         btc_balance = float(self.binance_client.get_margin_account()['totalNetAssetOfBtc'])
-        btc_rate = float((self.binance_client.get_symbol_ticker(symbol="BTCUSDT")['price']))
+        btc_rate = float((self.binance_client.get_symbol_ticker(symbol=self.base_currency)['price']))
         usdt_balance = round(btc_balance * btc_rate, 0)
         return int(usdt_balance)
 
+    # * #######################################################################
+    # * Function 
     def portion_size(self, account_balance, stop_limit_percentage):
         risk_amount = account_balance * self.RISK_FACTOR
         portion_size = risk_amount / stop_limit_percentage
         return round(portion_size, 2)
     
+    # * #######################################################################
+    # * Function 
     def convert_portion_size_to_quantity(self, coin_pair, portion_size):
         try:
 
@@ -188,6 +212,8 @@ class ExchangeClient:
         except Exception as e:
             print("an exception occurred - {}".format(e))
     
+    # * #######################################################################
+    # * Function 
     def get_tick_and_step_size(self, symbol):
         tick_size = None
         step_size = None
@@ -199,7 +225,8 @@ class ExchangeClient:
                 step_size = float(filter['stepSize'])
         return tick_size, step_size
 
-        # Round the quantity or price range, with the actual allowed decimals
+    # * #######################################################################
+    # * Function     # Round the quantity or price range, with the actual allowed decimals
     def rounding_exact_quantity(self, quantity, step_size):
         print("stepSize", step_size)
         step_size = int(math.log10(1 / float(step_size)))
@@ -207,6 +234,8 @@ class ExchangeClient:
         quantity = "{:0.0{}f}".format(float(quantity), step_size)
         return str(int(quantity)) if int(step_size) == 0 else quantity
 
+    # * #######################################################################
+    # * Function 
     def long_order(self, quantity, coinpair):
         order = None
         try:
@@ -216,6 +245,8 @@ class ExchangeClient:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
 
+    # * #######################################################################
+    # * Function 
     def short_order(self, quantity, coinpair):
         order = None
         try:
@@ -225,6 +256,8 @@ class ExchangeClient:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
     
+    # * #######################################################################
+    # * Function 
     def set_long_stop_loss(self, coinpair, quantity, price, trigger_condition ):
         order = None
         try:
@@ -234,6 +267,8 @@ class ExchangeClient:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
     
+    # * #######################################################################
+    # * Function 
     def set_short_stop_loss(self, coinpair, quantity, price, trigger_condition ):
         order = None
         try:
@@ -243,6 +278,8 @@ class ExchangeClient:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
 
+    # * #######################################################################
+    # * Function 
     def exit_long(self, coinpair, quantity):
         order = None
         try:            
@@ -252,6 +289,8 @@ class ExchangeClient:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
 
+    # * #######################################################################
+    # * Function 
     def exit_short(self, coinpair, quantity):
         order = None
         try: 
@@ -268,6 +307,8 @@ class ExchangeClient:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
 
+    # * #######################################################################
+    # * Function 
     def check_is_sl_hit(self, coinpair):
         order_id_list = []
         quantity = 0
@@ -291,31 +332,8 @@ class ExchangeClient:
                 logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return quantity
 
-    def set_debug(self, method):
-        
-        db = firestore.Client()
-        newActivity = db.collection(u'debug').document()
-        now = datetime.now()
-        logger.debug("👇👇👇👇👇 - newActivity - 👇👇👇👇👇 ")        
-        logger.debug(method)
-        logger.debug("👆👆👆👆👆 - newActivity - 👆👆👆👆👆 ")      
-
-        try:
-            newActivity.set(
-                {
-                    u'text': 'New activity',
-                    u'method': method,
-                    u'time': now.strftime("%m/%d/%Y, %H:%M:%S"),
-                }
-            )
-        except Exception as e:
-            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
-            return False
-
-        return {
-            print(newActivity)
-        }
-    
+    # * #######################################################################
+    # * Function     
     def set_stop_loss(self, order_response):
         
         db = firestore.Client()
@@ -340,6 +358,8 @@ class ExchangeClient:
             print(stop_loss_order)
         }
 
+    # * #######################################################################
+    # * Function 
     def set_order(self, order_response):
         
         db = firestore.Client()
@@ -364,6 +384,8 @@ class ExchangeClient:
             print(entry_order)
         }
 
+    # * #######################################################################
+    # * Function 
     def set_account_overview(self, account_overview):
         
         db = firestore.Client()
@@ -387,7 +409,9 @@ class ExchangeClient:
         return {
             print(account_overview)
         }
-    
+
+    # * #######################################################################
+    # * Function     
     def set_open_margin_orders(self, open_margin_orders):
         
         db = firestore.Client()
@@ -411,6 +435,8 @@ class ExchangeClient:
             logger.debug("👇👇👇👇👇 - set_open_margin_orders successful - 👇👇👇👇👇 ")   
         }
 
+    # * #######################################################################
+    # * Function 
     def set_checked_open_position(self, open_position):
             
         db = firestore.Client()        
@@ -442,6 +468,8 @@ class ExchangeClient:
             logger.debug("👇👇👇👇👇 - set_checked_open_positions successful - 👇👇👇👇👇 ")   
         }    
 
+    # * #######################################################################
+    # * Function 
     def set_tradable_assets(self, tradable_list):
             
         db = firestore.Client()
@@ -465,7 +493,9 @@ class ExchangeClient:
         return {
             print(tradable_assets)
         }
-    
+
+    # * #######################################################################
+    # * Function     
     def get_Active_Trades(self):
         print("🚀 RUNNING get_Active_Trades ---------------")
         db = firestore.Client()
@@ -477,7 +507,9 @@ class ExchangeClient:
             logger.debug("👆👆👆👆👆 - get_Active_Trades - 👆👆👆👆👆 ") 
             docs.append(doc.to_dict())
         return docs
-    
+
+    # * #######################################################################
+    # * Function     
     def get_open_margin_orders_firebase(self):
         print("🚀 RUNNING get_open_margin_orders ---------------")
         db = firestore.Client()
@@ -492,7 +524,9 @@ class ExchangeClient:
                 logger.debug("👆👆👆👆👆 - get_open_margin_orders - 👆👆👆👆👆 ") 
                 docs.append(open_order)
         return docs
-    
+
+    # * #######################################################################
+    # * Function     
     def get_checked_open_positions_firebase(self):
         print("🚀 RUNNING get_checked_open_positions_firebase ---------------")
         db = firestore.Client()
@@ -505,6 +539,8 @@ class ExchangeClient:
             docs.append(doc.to_dict())
         return docs
 
+    # * #######################################################################
+    # * Function 
     def delete_open_margin_orders(self):
         db = firestore.Client()
 
@@ -523,7 +559,9 @@ class ExchangeClient:
         # [END firestore_data_delete_collection]
 
         delete_collection(db.collection(u'open_margin_orders'), 10)
-    
+
+    # * #######################################################################
+    # * Function     
     def delete_checked_open_positions(self):
         db = firestore.Client()
 
