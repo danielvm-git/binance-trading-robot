@@ -117,15 +117,6 @@ gcloud auth login
 gcloud init
 ```
 
-#### login to gcloud
-```bash
-gcloud auth login
-```
-#### initialize gcloud
-```bash
-gcloud init
-```
-
 * Pick configuration to use:
    * Create a new configuration
 
