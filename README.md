@@ -7,8 +7,10 @@ The objective of this project is to create a cryptocurrency buying and selling r
 
 ## Description
 BEFORE YOU START WATCH:
-THIS VIDEO 1ST: [video](https://www.youtube.com/watch?v=t5EfITuFD9w)
-THIS VIDEO 2ND: [video](https://www.youtube.com/watch?v=WwZDwYz-3AQ)
+
+* THIS VIDEO 1ST: [video](https://www.youtube.com/watch?v=t5EfITuFD9w)
+
+* THIS VIDEO 2ND: [video](https://www.youtube.com/watch?v=WwZDwYz-3AQ)
 
 This is the same [amfchef's](https://github.com/amfchef) binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
 I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrated amfchef's [code](https://github.com/amfchef/binance-trading-bot) to run on [Firebase](https://firebase.google.com/) 
@@ -163,13 +165,25 @@ you can find it searching for the API name on https://console.cloud.google.com/
 #### Put your keys
 Open the source code folder with VSCode and edit the files to put your keys on
 
-* 1st here: /config.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+* 1st here: /app/config.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
      * change project_id (here is the name)
      * change password_request ("projects/<put your project number here>/secrets/trade_password_binance_margin/versions/latest") 
 
 Create the project on firebase 
 go to https://firebase.google.com/ and create a new project to host the role thing
 * 2nd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+* change the rules on firestore database to be like that
+```bash
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read;
+      allow write: if false;
+    }
+  }
+}
+````
  
 #### create de build
 Open a Terminal inside your VSCode.
@@ -191,27 +205,24 @@ gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here
 ```
 #### init firebase project 
 
-Then go back to your project main folder
-
-```bash
-cd ..
-```
-And than, inside the folder you execute this command
+* On your project main folder you execute this command on the VS Code Terminal
 ```bash
 npm init
 ```
-and then this
+* and then this
 ```bash
-npm i -D firebase-tools
+npm install -g firebase-tools
 ```
-
-#### init firebase hosting
+* edit .firebaserc to put your project name
+ 
+* edit firebase.json to put your function name
+ 
+* init firebase hosting
 use this command to select the firebase project
 ```bash 
 firebase use --add
 ```
-
-And then deploy the firebase 
+* And then deploy the firebase 
 ```bash
 firebase deploy --only hosting
 ```
