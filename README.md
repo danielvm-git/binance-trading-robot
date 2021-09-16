@@ -6,6 +6,10 @@
 The objective of this project is to create a cryptocurrency buying and selling robot to operate from signals sent by TradingView.com indicators
 
 ## Description
+BEFORE YOU START WATCH:
+THIS VIDEO 1ST: [video](https://www.youtube.com/watch?v=t5EfITuFD9w)
+THIS VIDEO 2ND: [video](https://www.youtube.com/watch?v=WwZDwYz-3AQ)
+
 This is the same [amfchef's](https://github.com/amfchef) binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
 I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrated amfchef's [code](https://github.com/amfchef/binance-trading-bot) to run on [Firebase](https://firebase.google.com/) 
 
