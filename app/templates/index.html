@@ -5,18 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="/static/img/favicon.ico">
+    <link rel="icon" href="/app/images/favicon.png">
 
     <title>Binance MM Bot</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.11.1/datatables.min.css"/>
-    <link rel="stylesheet" href="https://cdn.cryptofonts.com/1.3.1/cryptofont.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-  </head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.11.1/datatables.min.css"/>
+    <link rel="stylesheet"  type="text/css" href="https://cdn.cryptofonts.com/1.3.1/cryptofont.css">
     <!-- Custom styles for this template -->
-    <link href="/static/styles.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
   </head>
 
   <body>
@@ -85,7 +84,7 @@
               </button>
             </div>
           </div>
-          <h2>Accout Overview</h2>
+          <h2>Account Overview</h2>
           <div class="table-responsive">
             <table class="table table-striped table-sm">
               <thead>
@@ -110,7 +109,7 @@
           </div>
           <h2>Open Positions</h2>
           <div class="table-responsive">
-            <table id="empTable" class="table table-striped table-sm">
+            <table id="openPositions" class="table table-striped table-sm">
               <thead>
                 <tr>
                   <th></th>
@@ -156,11 +155,8 @@
     </script>
     <script>
       $(document).ready(function() {
-          $('#myTable').DataTable( {
-              "order": [[ 0, "asc" ]]
-          } );
           $('#openOrders').DataTable( {
-              "order": [[ 0, "asc" ]],
+              "order": [[ 4, "desc" ]],
               'processing': true,
               'bPaginate': false,
               'bLengthChange': false,
@@ -180,7 +176,7 @@
                 { 'data': 'orderId' }
               ]
           } );
-          var empDataTable = $('#empTable').DataTable({
+          var empOpenPositions = $('#openPositions').DataTable({
               "order": [[ 1, "asc" ]],
               'processing': true,
               'bPaginate': false,
@@ -188,7 +184,7 @@
               'bFilter': false,
               'bInfo': false,
               'ajax': {
-                  'url': '/ajaxfile',
+                  'url': '/openpositions',
                   'type': 'POST'
               },
                 searching: false,
