@@ -132,6 +132,8 @@ this configuration:
 
 
 #### Enable project billing and Cloud APIs 
+* Go to Google Cloud Console Dashboard, select you project, click on billing and select the billing account that you will use on the project
+
 you can find it searching for the API name on https://console.cloud.google.com/
 * Enable Cloud Run API
 * Enable Cloud Build API
@@ -155,16 +157,12 @@ you can find it searching for the API name on https://console.cloud.google.com/
 #### Put your keys
 Open the source code folder with VSCode and edit the files to put your keys on
 
-* 1st here: /server/src/app.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+* 1st here: /config.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
      * change project_id (here is the name)
      * change password_request ("projects/<put your project number here>/secrets/trade_password_binance_margin/versions/latest") 
- 
-* 2nd here: /server/src/calculate.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
-     * change project_id (here is the name)
-     * change key_request ("projects/<put your project number here>/secrets/exchange_api_key_binance_margin/versions/latest")
-     * change secret_request ("projects/<put your project number here>/secrets/exchange_api_secret_binance_margin/versions/latest") 
 
-* 3rd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+Create the project on firebase 
+* 2nd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
  
 #### create de build
 Open a Terminal inside your VSCode.
@@ -172,14 +170,14 @@ If it's not on you project folder you first go to the folder where you cloned th
 ```bash
 cd "your_project" folder
 ````
-go to your server folder
-```bash
-cd server
-```
 Inside the folder you execute this command
 ```bash
 gcloud builds submit --tag gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
 ```
+#### set the region
+```bash 
+gcloud config set run/region us-central1
+``` 
 #### deploy new build
 ```bash
 gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
