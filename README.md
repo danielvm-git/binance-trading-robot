@@ -165,7 +165,7 @@ you can find it searching for the API name on https://console.cloud.google.com/
 #### Put your keys
 Open the source code folder with VSCode and edit the files to put your keys on
 
-* 1st here: /config.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
+* 1st here: /app/config.py (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
      * change project_id (here is the name)
      * change password_request ("projects/<put your project number here>/secrets/trade_password_binance_margin/versions/latest") 
 
