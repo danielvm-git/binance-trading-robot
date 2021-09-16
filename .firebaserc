@@ -1,6 +1,6 @@
 {
   "projects": {
-    "production": "binance-trading-robot"
+    "production": "your-project-name"
   },
   "targets": {}
 }
