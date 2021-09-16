@@ -201,7 +201,10 @@ and then this
 ```bash
 npm install -g firebase-tools
 ```
-
+#### edit .firebaserc to put your project name
+ 
+#### edit firebase.json to put your function name
+ 
 #### init firebase hosting
 use this command to select the firebase project
 ```bash 
