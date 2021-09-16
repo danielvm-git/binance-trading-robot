@@ -1,12 +1,9 @@
 from app import app
-from app import calculate
 from app import exchange
 from app import config
 import sys
 import logging
-import datetime
 from flask import Flask, request, render_template, jsonify, json
-from werkzeug.utils import redirect
 
 # * ###########################################################################
 # * LOGGING INSTANTIATION RETURNING ON CONSOLE
@@ -20,11 +17,6 @@ logger = logging.getLogger(__name__)
 config_client = config.ConfigClient()
 
 # * ###########################################################################
-# * CALCULATE CLASS INSTANTIATION
-# * ###########################################################################
-calculate_client = calculate.CalculateClient()
-
-# * ###########################################################################
 # * EXCHANGE CLASS INSTANTIATION
 # * ###########################################################################
 exchange_client = exchange.ExchangeClient()
@@ -34,48 +26,36 @@ exchange_client = exchange.ExchangeClient()
 # * ###########################################################################
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
-def welcome():    
+def welcome():
+    #get account overview from binance    
     account_overview = exchange_client.get_account_overview()
-    exchange_client.set_account_overview(account_overview)
-    open_positions = exchange_client.get_open_positions(account_overview)
+    #prepare account overview to the frontend
+    account_overview_transformed = exchange_client.prepare_account_overview(account_overview)
+    #save account overview to firestore
+    exchange_client.set_account_overview(account_overview_transformed)
+    #get open positions from account overview
+    open_positions = exchange_client.get_open_positions(account_overview_transformed)
+    #get open margin orders from binance
     open_margin_orders = exchange_client.get_open_margin_orders()
-    exchange_client.set_open_margin_orders(open_margin_orders)
-    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders)
+    #prepare margin orders for the frontend
+    open_margin_orders_transformed = exchange_client.prepare_open_margin_orders(open_margin_orders)
+    #save open margin orders to firestore
+    exchange_client.set_open_margin_orders(open_margin_orders_transformed)
+    #check if each open order has the proper stop loss
+    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders_transformed)
+    #prepare the database to the present list o open positions
     exchange_client.delete_checked_open_positions()  
+    #save each checked open position to the database
     for open_position in checked_open_positions:
         exchange_client.set_checked_open_position(open_position)
-    template = render_template('index.html', account_overview=account_overview, open_positions=checked_open_positions, open_margin_orders=open_margin_orders)
+    template = render_template('index.html', account_overview=account_overview_transformed)
     return template
 
-@app.route('/openorders', methods=['GET', 'POST'])                                                                                  
-def openorders():    
-
-    if request.method == 'POST': 
-        open_margin_orders = exchange_client.get_open_margin_orders_firebase()
-        data = []
-        for open_margin_order in open_margin_orders:
-            symbol = open_margin_order["symbol"]
-            side = open_margin_order["side"]
-            quantity = open_margin_order["origQty"]
-            stop_price = open_margin_order["stopPrice"]
-            update_time = open_margin_order["updateTime"]
-            order_id = open_margin_order["orderId"]
-            data.append({
-                'symbol': symbol ,
-                'side': side ,
-                'origQty': quantity ,
-                'stopPrice': stop_price ,
-                'updateTime': update_time ,
-                'orderId': order_id
-            })
-        
-        response = {
-            'aaData': data
-        }
-        return jsonify(response)
-
-@app.route('/ajaxfile', methods=['GET', 'POST'])                                                                                  
-def ajaxfile():
+# * ###########################################################################
+# * ROUTE TO OPEN POSITIONS TABLE
+# * ###########################################################################
+@app.route('/openpositions', methods=['GET', 'POST'])                                                                                  
+def openpositions():
     checked_open_positions = exchange_client.get_checked_open_positions_firebase()
 
     if request.method == 'POST':
@@ -104,6 +84,36 @@ def ajaxfile():
                 'locked': locked ,
                 'has_stop_loss': has_stop_loss ,
                 'icon': icon 
+            })
+        
+        response = {
+            'aaData': data
+        }
+        return jsonify(response)
+
+# * ###########################################################################
+# * ROUTE TO OPEN ORDERS TABLE
+# * ###########################################################################
+@app.route('/openorders', methods=['GET', 'POST'])                                                                                  
+def openorders():    
+
+    if request.method == 'POST': 
+        open_margin_orders = exchange_client.get_open_margin_orders_firebase()
+        data = []
+        for open_margin_order in open_margin_orders:
+            symbol = open_margin_order["symbol"]
+            side = open_margin_order["side"]
+            quantity = open_margin_order["origQty"]
+            stop_price = open_margin_order["stopPrice"]
+            update_time = open_margin_order["updateTime"]
+            order_id = open_margin_order["orderId"]
+            data.append({
+                'symbol': symbol ,
+                'side': side ,
+                'origQty': quantity ,
+                'stopPrice': stop_price ,
+                'updateTime': update_time ,
+                'orderId': order_id
             })
         
         response = {
