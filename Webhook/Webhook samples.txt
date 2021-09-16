@@ -10,7 +10,7 @@ https://binance-trading-robot.web.app/webhook
 "ticker": "{{ticker}}",
 "entryprice": {{plot_10}},
 "stopprice": {{plot_11}},
-"password": "big136"
+"password": "your_password"
 }
 
 {
@@ -19,19 +19,19 @@ https://binance-trading-robot.web.app/webhook
 "ticker": "{{ticker}}",
 "entryprice": {{plot_10}},
 "stopprice": {{plot_11}},
-"password": "big136"
+"password": "your_password"
 }
 
 {
 "signal": "EXIT LONG",
 "interval": {{interval}},
 "ticker": "{{ticker}}",
-"password": "big136"
+"password": "your_password"
 }
 
 {
 "signal": "EXIT SHORT",
 "interval": {{interval}},
 "ticker": "{{ticker}}",
-"password": "big136"
+"password": "your_password"
 }
