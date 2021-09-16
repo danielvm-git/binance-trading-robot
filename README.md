@@ -205,9 +205,9 @@ use this command to select the firebase project
 firebase use --add
 ```
 
-And then init the hosting 
+And then deploy the firebase 
 ```bash
-firebase init hosting
+firebase deploy --only hosting
 ```
 ### That's it!
 Go to [Google Cloud Console](https://console.cloud.google.com/) -> Cloud Run and the address of the service created is your webhook. Just use it on your TradingView with MM indicator
