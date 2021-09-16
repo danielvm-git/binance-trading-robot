@@ -22,7 +22,7 @@ password_response = secret_manager_client.access_secret_version(password_request
 # * ###########################################################################
 # * Class ConfigClient
 class ConfigClient:
-    # Deconding the secrets.
+    # Decoding the secrets.
     API_KEY = api_key_response.payload.data.decode("UTF-8")
     API_SECRET = api_secret_response.payload.data.decode("UTF-8")
     PASSWORD = password_response.payload.data.decode("UTF-8")
