@@ -240,14 +240,15 @@ firebase deploy --only hosting
 ``` 
 ## Help
 ### Troubleshooting
-if the docker doesn't run try cleaning minikube and starting the service again
+* if the docker doesn't run try cleaning minikube and starting the service again
 ```bash
 minikube delete --all
 ```
-if the build fail try resetting the connections with gcloud, it happens sometimes at the begging of a coding session
+* if the build fail try resetting the connections with gcloud, it happens sometimes at the begging of a coding session
 ```bash
 gcloud auth application-default login
 ```
+* if you get stacked on the billing piece of the process because google doesn't allow your payment method try to finish the process on your cell phone (thanks to @hardeydhoying)
 
 ### What I did to get here 
 Those where my notes during the process, it's a mess but maybe can help you
@@ -267,6 +268,11 @@ python-binance binance Werkzeug google-cloud google-cloud-secret-manager firebas
  * 1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
 
  * 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
+
+#### Change firebase project info
+
+* change the project name inside .firebaserc
+* change the name of the function inside firebase.json
 
 #### created de build
 ```bash
@@ -293,11 +299,11 @@ firebase init hosting
 
 ## Version History
 * 0.0.3
-  * Layout enchancements
+  * Layout enhancements
 * 0.0.2
   * New look and feel
   * Bug fix - stop loss not being created
-  * Refactory routes.py
+  * Re-factory routes.py
   * Save orders result to firestore
 * 0.0.1
   * Initial work
