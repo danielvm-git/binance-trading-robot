@@ -3,7 +3,7 @@ from app import exchange
 from app import config
 import sys
 import logging
-from flask import Flask, request, render_template, jsonify, json
+from flask import request, render_template, jsonify, json
 
 # * ###########################################################################
 # * LOGGING INSTANTIATION RETURNING ON CONSOLE
@@ -74,6 +74,7 @@ def openpositions():
             else:
                 has_stop_loss = "<i class=\"far fa-ban\"></i>"    
             icon = "<i class=\"cf cf-"+asset.lower()+"\"></i>"
+            
             data.append({
                 'asset': asset ,
                 'position_value_in_dollar': position_value_in_dollar ,
