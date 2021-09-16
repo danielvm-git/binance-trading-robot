@@ -162,6 +162,7 @@ Open the source code folder with VSCode and edit the files to put your keys on
      * change password_request ("projects/<put your project number here>/secrets/trade_password_binance_margin/versions/latest") 
 
 Create the project on firebase 
+go to https://firebase.google.com/ and create a new project to host the role thing
 * 2nd here: /server/src/serviceAccountKey.json (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
  
 #### create de build
@@ -182,8 +183,7 @@ gcloud config set run/region us-central1
 ```bash
 gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
 ```
-#### Create firebase project binance-trading-robot
-go to https://firebase.google.com/ and create a new project to host the role thing
+#### init firebase project 
 
 Then go back to your project main folder
 
@@ -200,7 +200,12 @@ npm i -D firebase-tools
 ```
 
 #### init firebase hosting
-use this command:
+use this command to select the firebase project
+```bash 
+firebase use --add
+```
+
+And then init the hosting 
 ```bash
 firebase init hosting
 ```
