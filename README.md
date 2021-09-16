@@ -193,25 +193,24 @@ gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here
 ```
 #### init firebase project 
 
-On your project main folder you execute this command on the VS Code Terminal
+* On your project main folder you execute this command on the VS Code Terminal
 ```bash
 npm init
 ```
-and then this
+* and then this
 ```bash
 npm install -g firebase-tools
 ```
-#### edit .firebaserc to put your project name
+* edit .firebaserc to put your project name
  
-#### edit firebase.json to put your function name
+* edit firebase.json to put your function name
  
-#### init firebase hosting
+* init firebase hosting
 use this command to select the firebase project
 ```bash 
 firebase use --add
 ```
-
-And then deploy the firebase 
+* And then deploy the firebase 
 ```bash
 firebase deploy --only hosting
 ```
