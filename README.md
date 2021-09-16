@@ -89,26 +89,33 @@ git clone https://github.com/danielvm-git/binance-trading-robot
 ````
 
 #### Install virtual environment
-* Change directory to your project
-```bash
-cd "your_project" folder
-````
-* Install virtual environment
-```bash
-pip3 install python3-venv
-````
+* Open your VSCode
+* Add the folder you just cloned to the workspace
+* Open a new terminal inside VSCodec(menu->terminal-> new terminal)
 * Create a virtual environment
 ```bash
-virtualenv venv 
+python3 -m venv env
 ````
 * Activate virtual environment
 ```bash
-source venv/bin/activate
+source ./env/bin/activate
+````
+* Activate virtual environment
+```bash
+pip install --upgrade pip
 ````
 * Install dependencies
 ```bash
 pip3 install -r requirements.txt
 ````
+#### login to gcloud
+```bash
+gcloud auth login
+```
+#### initialize gcloud
+```bash
+gcloud init
+```
 
 #### login to gcloud
 ```bash
