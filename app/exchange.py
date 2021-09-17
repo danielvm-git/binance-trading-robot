@@ -198,7 +198,7 @@ class ExchangeClient:
     def portion_size(self, account_balance, stop_limit_percentage):
         risk_amount = account_balance * self.RISK_FACTOR
         portion_size = risk_amount / stop_limit_percentage
-        return round(portion_size, 2)
+        return round(portion_size, 2), risk_amount
     
     # * #######################################################################
     # * Function 
@@ -207,7 +207,7 @@ class ExchangeClient:
 
             coin_rate = float((self.binance_client.get_symbol_ticker(symbol=coin_pair)['price']))
             quantity = portion_size / coin_rate
-            return float(quantity)
+            return float(quantity), coin_rate
 
         except Exception as e:
             print("an exception occurred - {}".format(e))
@@ -298,7 +298,7 @@ class ExchangeClient:
             logger.debug(coinpair)
             logger.debug(quantity)
             logger.debug("👆👆👆👆👆 - exit_short - 👆👆👆👆👆 ")            
-            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)      
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)      
             logger.debug("👇👇👇👇👇 - exit_short - 👇👇👇👇👇 ")        
             logger.debug(order)
             logger.debug("👆👆👆👆👆 - exit_short - 👆👆👆👆👆 ")      
@@ -325,6 +325,31 @@ class ExchangeClient:
             for open_position in open_positions:
                 if open_position["asset"] == asset:
                     quantity = quantity + float(open_position["netAsset"])
+            for order_id in order_id_list:
+                self.binance_client.cancel_margin_order(symbol=coinpair,orderId=order_id)
+
+        except Exception as e:
+                logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return quantity
+    
+    # * #######################################################################
+    # * Function 
+    def check_is_sl_hit_short(self, coinpair):
+        order_id_list = []
+        quantity = 0
+        asset = coinpair.replace("USDT","")
+        try:
+            # TODO test when there is no open order
+            account_overview = self.get_account_overview()
+            open_positions = self.get_open_positions(account_overview)
+            open_orders = self.get_open_margin_orders()
+            
+            for open_order in  open_orders:
+                if open_order["symbol"] == coinpair:
+                    order_id_list.append(open_order["orderId"])                    
+            for open_position in open_positions:
+                if open_position["asset"] == asset:
+                    quantity = quantity + float(open_position["borrowed"])
             for order_id in order_id_list:
                 self.binance_client.cancel_margin_order(symbol=coinpair,orderId=order_id)
 
@@ -580,3 +605,128 @@ class ExchangeClient:
         # [END firestore_data_delete_collection]
 
         delete_collection(db.collection(u'checked_open_positions'), 10)
+
+    # * #######################################################################
+    # * Function     
+    def get_active_trades(self):
+        print("🚀 RUNNING get_active_trades ---------------")
+        db = firestore.Client()
+        docs = []
+        active_trades_stream = db.collection(u'active_trades').stream()
+        for doc in active_trades_stream:
+            logger.debug("👇👇👇👇👇 - get_active_trades - 👇👇👇👇👇 ")        
+            logger.debug(doc)
+            logger.debug("👆👆👆👆👆 - get_active_trades - 👆👆👆👆👆 ") 
+            docs.append(doc.to_dict())
+        return docs
+
+    # * #######################################################################
+    # * Function 
+    def set_active_trade(self, coin_pair, date_open, timeframe, side, stop_loss_pct, account_balance, risk_amount, position_size, entry_price, signal_stop_loss_price, present_price, entry_fee):
+            
+        db = firestore.Client()
+        active_trade_document = db.collection(u'active_trades').document(coin_pair)   
+
+        try:
+            active_trade_document.set(
+                {
+                    u'coin_pair': coin_pair,
+                    u'date_open': date_open,
+                    u'timeframe': timeframe,
+                    u'side': side,
+                    u'stop_loss_pct': stop_loss_pct,
+                    u'account_balance': account_balance,
+                    u'risk_amount': risk_amount,
+                    u'position_size': position_size,
+                    u'signal_entry_price': entry_price,
+                    u'signal_stop_loss_price': signal_stop_loss_price,
+                    u'trade_entry_price': present_price,
+                    u'entry_fee': entry_fee
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            logger.debug("👇👇👇👇👇 - set_active_trade successful - 👇👇👇👇👇 ")   
+        }
+
+    # * #######################################################################
+    # * Function prepare_open_margin_orders 
+    def get_date_and_fees(self, order_response):
+        try:
+            #convert from milliseconds, set date and time for each open order
+            open_date = int(order_response["transactTime"])
+            open_date = datetime.fromtimestamp(open_date/1000)
+            open_date = open_date.strftime("%m/%d/%Y, %H:%M:%S")
+            side = order_response["side"]
+            entry_fee = 0
+            present_price = 0
+            total_amount = 0
+            number_of_fills = 0
+            for fill in order_response["fills"]:
+                number_of_fills = number_of_fills + 1
+                entry_fee = entry_fee + float(fill["commission"])
+                total_amount = total_amount + (float(fill["price"])*float(fill["qty"]))
+            present_price = round(total_amount/float(order_response["executedQty"]),2)           
+
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return open_date, side, entry_fee, present_price
+
+    # * #######################################################################
+    # * Function 
+    def set_closed_trade(self,exit_order_response):
+            
+        db = firestore.Client()
+        closed_trade_document = db.collection(u'closed_trade').document() 
+        active_trades = self.get_active_trades()  
+        this_trade = None 
+        for active_trade in active_trades:
+            if active_trade["coin_pair"] == exit_order_response["symbol"]:
+                this_trade = active_trade
+
+        try:
+            symbol = exit_order_response["symbol"]
+            date_close = exit_order_response["transactTime"]
+            position_size = exit_order_response["origQty"]
+            trade_exit_price = 0 
+            exit_fee = 0 
+
+            date_open = this_trade["date_open"]            
+            timeframe = this_trade["timeframe"]
+            stop_loss_pct = this_trade["stop_loss_pct"]
+            account_balance = this_trade["account_balance"]
+            risk_amount = this_trade["risk_amount"]
+            signal_entry_price = this_trade["signal_entry_price"]
+            signal_stop_loss_price = this_trade["signal_stop_loss_price"]
+            trade_entry_price = this_trade["trade_entry_price"] 
+            entry_fee = this_trade["entry_fee"]   
+                        
+            closed_trade_document.set(
+                {
+                    u'symbol': symbol,
+                    u'date_open': date_open,
+                    u'date_close': date_close,
+                    u'timeframe': timeframe,
+                    u'side': "LONG",
+                    u'stop_loss_pct': stop_loss_pct,
+                    u'account_balance': account_balance,
+                    u'risk_amount': risk_amount,
+                    u'position_size': position_size,
+                    u'signal_entry_price': signal_entry_price,
+                    u'signal_stop_loss_price': signal_stop_loss_price,
+                    u'trade_entry_price': trade_entry_price,
+                    u'trade_exit_price': trade_exit_price,
+                    u'entry_fee': entry_fee,
+                    u'exit_fee': exit_fee
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+
+        return {
+            logger.debug("👇👇👇👇👇 - set_closed_trade successful - 👇👇👇👇👇 ")   
+        }

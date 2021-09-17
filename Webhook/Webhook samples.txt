@@ -1,5 +1,5 @@
 Please choose the same password for the setup.py
-# TV will automaticly fill in {{plot_10}} and {{plot_11}} as the entryprice and stopprice.
+# TV will automatically fill in {{plot_10}} and {{plot_11}} as the entryprice and stopprice.
 # TV till also fill in the "interval" and "ticker" as "120" (min), "BTCUSDT"
 
 https://binance-trading-robot.web.app/webhook

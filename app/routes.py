@@ -153,8 +153,8 @@ def webhook():
 
             # TODO entry_long - need quantity and symbol
             sl_percent = round((1 - (stop_price / entry_price)), 4)
-            portion_size = exchange_client.portion_size(usdt_balance, sl_percent)
-            quantity = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
+            portion_size, risk_amount = exchange_client.portion_size(usdt_balance, sl_percent)
+            quantity, coin_rate = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
             rate_steps, quantity_steps = exchange_client.get_tick_and_step_size(coin_pair)
             quantity = exchange_client.rounding_exact_quantity(quantity, quantity_steps)
 
@@ -164,22 +164,26 @@ def webhook():
             order_response = exchange_client.long_order(quantity,coin_pair)
             exchange_client.set_long_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
             exchange_client.set_order(order_response)
+            open_date,side,entry_fee,present_price = exchange_client.get_date_and_fees(order_response)
+            exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
 
         elif signal == "ENTRY SHORT":
 
             # TODO entry_short
             sl_percent = round(((stop_price / entry_price) - 1), 4)
-            portion_size = exchange_client.portion_size(usdt_balance, sl_percent)
-            quantity = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
+            portion_size, risk_amount = exchange_client.portion_size(usdt_balance, sl_percent)
+            quantity, coin_rate = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
             rate_steps, quantity_steps = exchange_client.get_tick_and_step_size(coin_pair)
             quantity = exchange_client.rounding_exact_quantity(quantity, quantity_steps)
 
             trigger_condition = stop_price * 0.98
             stop_price = exchange_client.rounding_exact_quantity(stop_price, rate_steps)
             trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
-            order_response = exchange_client.long_order(quantity,coin_pair)
+            order_response = exchange_client.short_order(quantity,coin_pair)
             exchange_client.set_short_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
             exchange_client.set_order(order_response)
+            open_date,side,entry_fee,present_price = exchange_client.get_date_and_fees(order_response)
+            exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
 
     elif signal == "EXIT LONG":
 
@@ -190,16 +194,18 @@ def webhook():
         logger.debug(order_response)
         logger.debug("DEBUG")
         exchange_client.set_stop_loss(order_response)
+        exchange_client.set_closed_trade(order_response)
 
     elif signal == "EXIT SHORT":
         
         # TODO exit_short
-        quantity = exchange_client.check_is_sl_hit(coin_pair)
+        quantity = exchange_client.check_is_sl_hit_short(coin_pair)
         order_response = exchange_client.exit_short(coin_pair,quantity)
         logger.debug("DEBUG")
         logger.debug(order_response)
         logger.debug("DEBUG")
         exchange_client.set_stop_loss(order_response)
+        exchange_client.set_closed_trade(order_response)
 
     else:
         return "An error occurred, can read the signal"
