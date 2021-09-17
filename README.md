@@ -269,6 +269,8 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.4
+ * New feature - Entry and Exit shorts
 * 0.0.3
   * Layout enhancements
 * 0.0.2
