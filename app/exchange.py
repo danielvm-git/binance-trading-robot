@@ -359,14 +359,14 @@ class ExchangeClient:
 
     # * #######################################################################
     # * Function     
-    def set_stop_loss(self, order_response):
+    def set_exit_order(self, order_response):
         
         db = firestore.Client()
-        stop_loss_order = db.collection(u'stop_loss_order').document()
+        stop_loss_order = db.collection(u'exit_order').document()
         now = datetime.now()
-        logger.debug("👇👇👇👇👇 - stop_loss_order - 👇👇👇👇👇 ")        
+        logger.debug("👇👇👇👇👇 - exit_order - 👇👇👇👇👇 ")        
         logger.debug(order_response)
-        logger.debug("👆👆👆👆👆 - stop_loss_order - 👆👆👆👆👆 ")      
+        logger.debug("👆👆👆👆👆 - exit_order - 👆👆👆👆👆 ")      
 
         try:
             stop_loss_order.set(
