@@ -45,31 +45,25 @@ xcode-select --install
 The guy on the video is using https://code.visualstudio.com/ (this was recommended in the video above, I'm using it as well)
 
 #### Check what you have
-* check your JAVA version on Terminal or CMD
+* check your JAVA, PYTHON, NVM, NODE, NPM, PIP and GIT versions on Terminal or CMD
 ```bash
 java -version
 ```
-* check your PYTHON version
 ```bash
 python3 --version
 ```
-* check your NVM version
 ```bash
 nvm --version
 ```
-* check your NODE version
 ```bash
 node --version
 ```
-* check your NPM version
 ```bash
 npm --version
 ````
-* check your PIP version
 ```bash
 pip3 --version
 ````
-* check your GIT version
 ```bash
 git --version
 ````
@@ -195,10 +189,6 @@ Inside the folder you execute this command
 ```bash
 gcloud builds submit --tag gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
 ```
-#### set the region
-```bash 
-gcloud config set run/region us-central1
-``` 
 #### deploy new build
 ```bash
 gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
@@ -264,6 +254,11 @@ minikube delete --all
 gcloud auth application-default login
 ```
 * if you get stacked on the billing piece of the process because google doesn't allow your payment method try to finish the process on your cell phone (thanks to @hardeydhoying)
+ 
+* set the region to avoid been asked each time you run the build (I'm using US central)
+```bash 
+gcloud config set run/region us-central1
+``` 
 
 ## Contributing
 
@@ -298,8 +293,8 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 if you want to buy me a coffee to accompany me on the programming nights I will always be grateful
 * BTC 1NJ7SxaRaCaJU8BjPeP9wWM8qW4dpwEKzS
 * LTC LZNGMCpeEEYpikVHwq1pDN7ugF2gMXKf3z
+* TRX TNwPjgLwWSYmjjf6iSzF7nvkdYrzgvi87h
 * ETH (ERC20) 0x210cee0b909dc0a4fb08f4bb7882d2fbd1f05b9a
-* TRX
 * USDT (TRC20) TNwPjgLwWSYmjjf6iSzF7nvkdYrzgvi87h
 
 ## Acknowledgments
