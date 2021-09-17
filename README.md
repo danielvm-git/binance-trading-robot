@@ -15,7 +15,7 @@ BEFORE YOU START WATCH:
 This is the same [amfchef's](https://github.com/amfchef) binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
 I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrated amfchef's [code](https://github.com/amfchef/binance-trading-bot) to run on [Firebase](https://firebase.google.com/) 
 
-IMPORTANT: I'm using it just for longs and just for USDT pairs, it was not tested on BTC pairs or with shorts (borrow stuff still under construction)
+IMPORTANT: I'm using it just for longs and just for USDT pairs, it was not tested on BTC pairs. Runned just a feel tests with SHORTS.
 
 ## Getting Started
 ### Dependencies
