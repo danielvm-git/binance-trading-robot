@@ -193,8 +193,9 @@ def webhook():
         logger.debug("DEBUG")
         logger.debug(order_response)
         logger.debug("DEBUG")
-        exchange_client.set_stop_loss(order_response)
-        exchange_client.set_closed_trade(order_response)
+        if order_response != None:
+            exchange_client.set_exit_order(order_response)
+            exchange_client.set_closed_trade(order_response)
 
     elif signal == "EXIT SHORT":
         
@@ -204,9 +205,9 @@ def webhook():
         logger.debug("DEBUG")
         logger.debug(order_response)
         logger.debug("DEBUG")
-        exchange_client.set_stop_loss(order_response)
-        exchange_client.set_closed_trade(order_response)
-
+        if order_response != None:
+            exchange_client.set_exit_order(order_response)
+            exchange_client.set_closed_trade(order_response)
     else:
         return "An error occurred, can read the signal"
 
