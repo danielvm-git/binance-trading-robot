@@ -265,45 +265,6 @@ gcloud auth application-default login
 ```
 * if you get stacked on the billing piece of the process because google doesn't allow your payment method try to finish the process on your cell phone (thanks to @hardeydhoying)
 
-### What I did to get here 
-Those where my notes during the process, it's a mess but maybe can help you
-#### Followed the video
-* I Followed the video and built the application like you see on the video https://www.youtube.com/watch?v=t5EfITuFD9w
-The idea is to run @amfchef's code on this structure instead of the presenter's one. 
-#### Downloaded the original code
-* Cloned @amfchef bot at https://github.com/amfchef/binance-trading-bot Great job guy, the code is amazing
-#### Moved the files
-* Moved original files and replace the ones on my the application I built watching the video. Created the function binance-trading-robot-fire on Cloud Run
-#### Created the Docker
-* Created docker file like you see on the video then you add this to the RUN line:  
-python-binance binance Werkzeug google-cloud google-cloud-secret-manager firebase-admin
-#### Put my keys
-* Edited the config files and put my keys on
-
- * 1st here: /server/src/serviceAccountKey.json (you find this adding an app on your Firebase console -> Project Overview -> Settings -> General)
-
- * 2nd here: /server/src/config.py (you find this creating a Service account on your Firebase console -> Project Overview -> Settings -> Service Account)
-
-#### Change firebase project info
-
-* change the project name inside .firebaserc
-* change the name of the function inside firebase.json
-
-#### created de build
-```bash
-gcloud builds submit --tag gcr.io/binance-trading-robot/binance-trading-robot-fire
-```
-#### deployed new build
-```bash
-gcloud run deploy binance-trading-robot-fire --image gcr.io/binance-trading-robot/binance-trading-robot-fire
-```
-#### Created firebase project binance-trading-robot
-* went to https://firebase.google.com/ and create a new project to host the role thing
-#### init firebase hosting
-```bash
-firebase init hosting
-```
-
 ## Contributing
 
 1. Fork it (<https://github.com/danielvm-git/binance-trading-robot/fork>)
