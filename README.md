@@ -293,6 +293,14 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 [@amfchef](https://github.com/amfchef) - Original code
  
 [@danielvm-git](https://github.com/danielvm-git) - Contributor
+ 
+## Support
+if you want to buy me a coffee to accompany me on the programming nights I will always be grateful
+* BTC 1NJ7SxaRaCaJU8BjPeP9wWM8qW4dpwEKzS
+* LTC LZNGMCpeEEYpikVHwq1pDN7ugF2gMXKf3z
+* ETH (ERC20) 0x210cee0b909dc0a4fb08f4bb7882d2fbd1f05b9a
+* TRX
+* USDT (TRC20) TNwPjgLwWSYmjjf6iSzF7nvkdYrzgvi87h
 
 ## Acknowledgments
 Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made on the original code that I used here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
