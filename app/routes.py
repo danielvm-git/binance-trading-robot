@@ -69,6 +69,7 @@ def openpositions():
             interest = openposition["interest"]
             locked = openposition["locked"]
             has_stop_loss = openposition["has_stop_loss"]
+            side = openposition["side"]
             if has_stop_loss == "true":
                 has_stop_loss = "<i class=\"far fa-thumbs-up\"></i>"
             else:
@@ -77,6 +78,7 @@ def openpositions():
             
             data.append({
                 'asset': asset ,
+                'side': side,
                 'position_value_in_dollar': position_value_in_dollar ,
                 'netAsset': netAsset ,
                 'borrowed': borrowed ,
@@ -158,14 +160,15 @@ def webhook():
             rate_steps, quantity_steps = exchange_client.get_tick_and_step_size(coin_pair)
             quantity = exchange_client.rounding_exact_quantity(quantity, quantity_steps)
 
-            trigger_condition = stop_price * 1.02
+            trigger_condition = stop_price * 1.01
             stop_price = exchange_client.rounding_exact_quantity(stop_price, rate_steps)
             trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
             order_response = exchange_client.long_order(quantity,coin_pair)
             exchange_client.set_long_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
             exchange_client.set_order(order_response)
-            open_date,side,entry_fee,present_price = exchange_client.get_date_and_fees(order_response)
-            exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
+            open_date,side,entry_fee,present_price, dollar_size_entry = exchange_client.get_date_and_fees(order_response)
+            present_price = exchange_client.rounding_exact_quantity(present_price, rate_steps)
+            exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
 
         elif signal == "ENTRY SHORT":
 
@@ -176,13 +179,14 @@ def webhook():
             rate_steps, quantity_steps = exchange_client.get_tick_and_step_size(coin_pair)
             quantity = exchange_client.rounding_exact_quantity(quantity, quantity_steps)
 
-            trigger_condition = stop_price * 0.98
+            trigger_condition = stop_price * 0.99
             stop_price = exchange_client.rounding_exact_quantity(stop_price, rate_steps)
             trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
             order_response = exchange_client.short_order(quantity,coin_pair)
             exchange_client.set_short_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
             exchange_client.set_order(order_response)
             open_date,side,entry_fee,present_price = exchange_client.get_date_and_fees(order_response)
+            present_price = exchange_client.rounding_exact_quantity(present_price, rate_steps)
             exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
 
     elif signal == "EXIT LONG":
@@ -223,3 +227,34 @@ def webhook():
             "code": "error",
             "message": "order failed"
         }
+
+# * ###########################################################################
+# * ROUTE TO OPEN POSITIONS TABLE
+# * ###########################################################################
+@app.route('/recenttradehistory', methods=['GET', 'POST'])                                                                                  
+def recenttradehistory():
+    trade_history_list = []
+    open_positions = exchange_client.get_checked_open_positions_firebase()
+    for open_position in open_positions:
+        symbol = open_position["asset"]
+        if symbol != 'USDT' and symbol != 'BNB':
+            tradehistory = exchange_client.get_margin_trades(symbol)
+            trade_history_list.append(tradehistory[0])
+
+    return jsonify(trade_history_list)
+
+# * ###########################################################################
+# * ROUTE TO OPEN POSITIONS TABLE
+# * ###########################################################################
+@app.route('/tradehistory', methods=['GET', 'POST'])                                                                                  
+def tradehistory():
+    trade_history_list = []
+    open_positions = exchange_client.get_checked_open_positions_firebase()
+    for open_position in open_positions:
+        symbol = open_position["asset"]
+        if symbol != 'USDT' and symbol != 'BNB':
+            tradehistory = exchange_client.get_margin_trades(symbol)
+            for trade in tradehistory:
+                trade_history_list.append(trade)
+
+    return jsonify(trade_history_list)
