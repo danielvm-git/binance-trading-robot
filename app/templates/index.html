@@ -114,6 +114,7 @@
                 <tr>
                   <th></th>
                   <th>Coin</th>
+                  <th>Side</th>
                   <th>USD Value</th>
                   <th>NetAsset</th>
                   <th>Borrowed</th>
@@ -177,7 +178,7 @@
               ]
           } );
           var empOpenPositions = $('#openPositions').DataTable({
-              "order": [[ 1, "asc" ]],
+              "order": [[ 2, "asc" ]],
               'processing': true,
               'bPaginate': false,
               'bLengthChange': false,
@@ -195,6 +196,7 @@
                     'orderable': false
                 },  
                 { 'data': 'asset' },
+                { 'data': 'side' },
                 { 'data': 'position_value_in_dollar' },
                 { 'data': 'netAsset' },
                 { 'data': 'borrowed' },
