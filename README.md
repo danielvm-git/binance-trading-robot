@@ -269,6 +269,9 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.5
+ * New feature - MM's spreadsheet helper
+ * Layout - new field "Side" on Open Positions table 
 * 0.0.4
  * New feature - Entry and Exit shorts
 * 0.0.3
