@@ -26,3 +26,4 @@ class ConfigClient:
     API_KEY = api_key_response.payload.data.decode("UTF-8")
     API_SECRET = api_secret_response.payload.data.decode("UTF-8")
     PASSWORD = password_response.payload.data.decode("UTF-8")
+    RISK_FACTOR = 0.01
