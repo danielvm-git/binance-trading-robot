@@ -1,6 +1,9 @@
 from app import app
-from app import exchange
 from app import config
+from app import exchange
+from app import database
+from app import controller
+from app import preparation
 import sys
 import logging
 from flask import request, render_template, jsonify, json
@@ -22,33 +25,27 @@ config_client = config.ConfigClient()
 exchange_client = exchange.ExchangeClient()
 
 # * ###########################################################################
+# * DATABASE CLASS INSTANTIATION
+# * ###########################################################################
+database_client = database.DatabaseClient()
+
+# * ###########################################################################
+# * CONTROLLER CLASS INSTANTIATION
+# * ###########################################################################
+controller_client = controller.ControllerClient()
+
+# * ###########################################################################
+# * PREPARATION CLASS INSTANTIATION
+# * ###########################################################################
+preparation_client = preparation.PreparationClient()
+
+# * ###########################################################################
 # * ROUTE TO HOME
 # * ###########################################################################
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def welcome():
-    #get account overview from binance    
-    account_overview = exchange_client.get_account_overview()
-    #prepare account overview to the frontend
-    account_overview_transformed = exchange_client.prepare_account_overview(account_overview)
-    #save account overview to firestore
-    exchange_client.set_account_overview(account_overview_transformed)
-    #get open positions from account overview
-    open_positions = exchange_client.get_open_positions(account_overview_transformed)
-    #get open margin orders from binance
-    open_margin_orders = exchange_client.get_open_margin_orders()
-    #prepare margin orders for the frontend
-    open_margin_orders_transformed = exchange_client.prepare_open_margin_orders(open_margin_orders)
-    #save open margin orders to firestore
-    exchange_client.set_open_margin_orders(open_margin_orders_transformed)
-    #check if each open order has the proper stop loss
-    checked_open_positions = exchange_client.has_stop_loss(open_positions,open_margin_orders_transformed)
-    #prepare the database to the present list o open positions
-    exchange_client.delete_checked_open_positions()  
-    #save each checked open position to the database
-    for open_position in checked_open_positions:
-        exchange_client.set_checked_open_position(open_position)
-    template = render_template('index.html', account_overview=account_overview_transformed)
+    template = controller_client.render_index_page()
     return template
 
 # * ###########################################################################
@@ -56,7 +53,7 @@ def welcome():
 # * ###########################################################################
 @app.route('/openpositions', methods=['GET', 'POST'])                                                                                  
 def openpositions():
-    checked_open_positions = exchange_client.get_checked_open_positions_firebase()
+    checked_open_positions = database_client.get_checked_open_positions_firebase()
 
     if request.method == 'POST':
         data = []
@@ -101,7 +98,7 @@ def openpositions():
 def openorders():    
 
     if request.method == 'POST': 
-        open_margin_orders = exchange_client.get_open_margin_orders_firebase()
+        open_margin_orders = database_client.get_open_margin_orders_firebase()
         data = []
         for open_margin_order in open_margin_orders:
             symbol = open_margin_order["symbol"]
@@ -150,68 +147,73 @@ def webhook():
     if signal == "ENTRY LONG" or signal == "ENTRY SHORT":
         stop_price = data['stopprice']
         entry_price = data['entryprice']
-        usdt_balance = exchange_client.get_usdt_balance()
+        usdt_balance = controller_client.get_usdt_balance()
         if signal == "ENTRY LONG":
 
-            # TODO entry_long - need quantity and symbol
             sl_percent = round((1 - (stop_price / entry_price)), 4)
-            portion_size, risk_amount = exchange_client.portion_size(usdt_balance, sl_percent)
-            quantity, coin_rate = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            rate_steps, quantity_steps = exchange_client.get_tick_and_step_size(coin_pair)
-            quantity = exchange_client.rounding_exact_quantity(quantity, quantity_steps)
+            portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
+            quantity, coin_rate = controller_client.convert_portion_size_to_quantity(coin_pair, portion_size)
+            symbol_info = exchange_client.get_symbol_info(coin_pair)
+            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
+            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
 
-            trigger_condition = stop_price * 1.01
-            stop_price = exchange_client.rounding_exact_quantity(stop_price, rate_steps)
-            trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
-            order_response = exchange_client.long_order(quantity,coin_pair)
-            exchange_client.set_long_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
-            exchange_client.set_order(order_response)
-            open_date,side,entry_fee,present_price, dollar_size_entry = exchange_client.get_date_and_fees(order_response)
-            present_price = exchange_client.rounding_exact_quantity(present_price, rate_steps)
-            exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
+            trigger_condition = stop_price
+            stop_price = stop_price * 0.99
+            stop_price = preparation_client.rounding_exact_quantity(stop_price, rate_steps)
+            trigger_condition = preparation_client.rounding_exact_quantity(trigger_condition, rate_steps)
+            order_response = exchange_client.create_long_order(quantity,coin_pair)
+            exchange_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+            database_client.set_order(order_response)
+            open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
+            present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
+            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
 
         elif signal == "ENTRY SHORT":
 
-            # TODO entry_short
             sl_percent = round(((stop_price / entry_price) - 1), 4)
-            portion_size, risk_amount = exchange_client.portion_size(usdt_balance, sl_percent)
-            quantity, coin_rate = exchange_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            rate_steps, quantity_steps = exchange_client.get_tick_and_step_size(coin_pair)
-            quantity = exchange_client.rounding_exact_quantity(quantity, quantity_steps)
+            portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
+            quantity, coin_rate = controller_client.convert_portion_size_to_quantity(coin_pair, portion_size)
+            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(coin_pair)
+            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
 
-            trigger_condition = stop_price * 0.99
-            stop_price = exchange_client.rounding_exact_quantity(stop_price, rate_steps)
-            trigger_condition = exchange_client.rounding_exact_quantity(trigger_condition, rate_steps)
-            order_response = exchange_client.short_order(quantity,coin_pair)
-            exchange_client.set_short_stop_loss(coin_pair,quantity,stop_price,trigger_condition)
-            exchange_client.set_order(order_response)
-            open_date,side,entry_fee,present_price = exchange_client.get_date_and_fees(order_response)
-            present_price = exchange_client.rounding_exact_quantity(present_price, rate_steps)
-            exchange_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
+            trigger_condition = stop_price
+            stop_price = stop_price * 1.01
+            stop_price = preparation_client.rounding_exact_quantity(stop_price, rate_steps)
+            trigger_condition = preparation_client.rounding_exact_quantity(trigger_condition, rate_steps)
+            order_response = exchange_client.create_short_order(quantity,coin_pair)
+            exchange_client.create_short_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+            database_client.set_order(order_response)
+            open_date,side,entry_fee,present_price = preparation_client.get_date_and_fees(order_response)
+            present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
+            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
 
     elif signal == "EXIT LONG":
-
-        # TODO exit_long
-        quantity = exchange_client.check_is_sl_hit(coin_pair)
-        order_response = exchange_client.exit_long(coin_pair,quantity)
+        account_overview = exchange_client.get_margin_account()
+        open_orders = exchange_client.get_open_margin_orders()
+        quantity, order_id_list = preparation_client.check_is_sl_hit(coin_pair,open_orders,account_overview)
+        for order_id in order_id_list:
+            exchange_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)
+        order_response = exchange_client.create_exit_long_order(coin_pair,quantity)
         logger.debug("DEBUG")
         logger.debug(order_response)
         logger.debug("DEBUG")
         if order_response != None:
-            exchange_client.set_exit_order(order_response)
-            exchange_client.set_closed_trade(order_response)
+            database_client.set_exit_order(order_response)
+            database_client.set_closed_trade(order_response)
 
     elif signal == "EXIT SHORT":
-        
-        # TODO exit_short
-        quantity = exchange_client.check_is_sl_hit_short(coin_pair)
-        order_response = exchange_client.exit_short(coin_pair,quantity)
+        account_overview = exchange_client.get_margin_account()
+        open_orders = exchange_client.get_open_margin_orders()
+        quantity, order_id_list = preparation_client.check_is_sl_hit_short(coin_pair,open_orders,account_overview)
+        for order_id in order_id_list:
+            exchange_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)
+        order_response = exchange_client.create_exit_short_order(coin_pair,quantity)
         logger.debug("DEBUG")
         logger.debug(order_response)
         logger.debug("DEBUG")
         if order_response != None:
-            exchange_client.set_exit_order(order_response)
-            exchange_client.set_closed_trade(order_response)
+            database_client.set_exit_order(order_response)
+            database_client.set_closed_trade(order_response)
     else:
         return "An error occurred, can read the signal"
 
@@ -234,10 +236,11 @@ def webhook():
 @app.route('/recenttradehistory', methods=['GET', 'POST'])                                                                                  
 def recenttradehistory():
     trade_history_list = []
-    open_positions = exchange_client.get_checked_open_positions_firebase()
+    open_positions = database_client.get_checked_open_positions_firebase()
     for open_position in open_positions:
         symbol = open_position["asset"]
         if symbol != 'USDT' and symbol != 'BNB':
+            symbol = symbol + 'USDT'
             tradehistory = exchange_client.get_margin_trades(symbol)
             trade_history_list.append(tradehistory[0])
 
@@ -249,10 +252,11 @@ def recenttradehistory():
 @app.route('/tradehistory', methods=['GET', 'POST'])                                                                                  
 def tradehistory():
     trade_history_list = []
-    open_positions = exchange_client.get_checked_open_positions_firebase()
+    open_positions = database_client.get_checked_open_positions_firebase()
     for open_position in open_positions:
         symbol = open_position["asset"]
         if symbol != 'USDT' and symbol != 'BNB':
+            symbol = symbol + 'USDT'
             tradehistory = exchange_client.get_margin_trades(symbol)
             for trade in tradehistory:
                 trade_history_list.append(trade)
