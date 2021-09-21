@@ -272,7 +272,8 @@ gcloud config set run/region us-central1
 * 0.0.5
  * New feature - MM's spreadsheet helper
  * Layout - new field "Side" on Open Positions table 
- * Bugfix - Fix for value calculation on Stop Loss and Stop Loss trigger condition  
+ * Bugfix - fix for value calculation on Stop Loss and Stop Loss trigger condition
+ * Refactory - new "MVC" like file structure   
 * 0.0.4
  * New feature - Entry and Exit shorts
 * 0.0.3
