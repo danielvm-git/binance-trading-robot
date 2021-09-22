@@ -173,7 +173,8 @@ def webhook():
             sl_percent = round(((stop_price / entry_price) - 1), 4)
             portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
             quantity, coin_rate = controller_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(coin_pair)
+            symbol_info = exchange_client.get_symbol_info(coin_pair)
+            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
             quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
 
             trigger_condition = stop_price
@@ -183,9 +184,9 @@ def webhook():
             order_response = exchange_client.create_short_order(quantity,coin_pair)
             exchange_client.create_short_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
             database_client.set_order(order_response)
-            open_date,side,entry_fee,present_price = preparation_client.get_date_and_fees(order_response)
+            open_date, side, entry_fee, present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
             present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
-            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee)
+            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
 
     elif signal == "EXIT LONG":
         account_overview = exchange_client.get_margin_account()
