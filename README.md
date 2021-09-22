@@ -269,6 +269,8 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.6
+ * Bugfix - Webhook not working properly after the previous update
 * 0.0.5
  * New feature - MM's spreadsheet helper
  * Layout - new field "Side" on Open Positions table 
