@@ -43,11 +43,12 @@ class ControllerClient:
     # * #######################################################################
     # * Function get_usdt_balance
     def get_usdt_balance(self):
+        usdt_balance = 0
         try:   
             margin_account = exchange_client.get_margin_account()
             btc_balance = margin_account['totalNetAssetOfBtc']
             btc_balance = float(btc_balance)
-            symbol_ticker = exchange_client.get_symbol_ticker(symbol=self.base_currency)
+            symbol_ticker = exchange_client.get_symbol_ticker("BTCUSDT")
             btc_rate = symbol_ticker['price']
             btc_rate = float(btc_rate)
             usdt_balance = round(btc_balance * btc_rate, 0)
