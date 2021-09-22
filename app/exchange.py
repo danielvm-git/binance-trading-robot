@@ -101,9 +101,10 @@ class ExchangeClient:
     # * Function get_symbol_ticker implements the original API method 
     # * https://bit.ly/binanceCode#binance.client.Client.get_symbol_ticker
     def get_symbol_ticker(self, symbol):
+        symbol_ticker = None
         try:
             #get symbol ticker
-            symbol_ticker = self.binance_client.get_symbol_ticker(symbol)
+            symbol_ticker = self.binance_client.get_symbol_ticker(symbol=symbol)
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return symbol_ticker
