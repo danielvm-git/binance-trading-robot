@@ -98,7 +98,7 @@ class PreparationClient:
             logger.debug("👇👇👇👇👇 - tradable_assets - 👇👇👇👇👇 ")        
             logger.debug(tradable_assets)
             logger.debug("👆👆👆👆👆 - tradable_assets - 👆👆👆👆👆 ") 
-            self.set_tradable_assets(tradable_assets) 
+            # self.set_tradable_assets(tradable_assets) 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return open_positions 
