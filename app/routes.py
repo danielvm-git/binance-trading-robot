@@ -192,7 +192,7 @@ def webhook():
         open_orders = exchange_client.get_open_margin_orders()
         quantity, order_id_list = preparation_client.check_is_sl_hit(coin_pair,open_orders,account_overview)
         for order_id in order_id_list:
-            exchange_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)
+            exchange_client.cancel_margin_order(coin_pair,order_id)
         order_response = exchange_client.create_exit_long_order(coin_pair,quantity)
         logger.debug("DEBUG")
         logger.debug(order_response)
@@ -206,7 +206,7 @@ def webhook():
         open_orders = exchange_client.get_open_margin_orders()
         quantity, order_id_list = preparation_client.check_is_sl_hit_short(coin_pair,open_orders,account_overview)
         for order_id in order_id_list:
-            exchange_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)
+            exchange_client.cancel_margin_order(coin_pair,order_id)
         order_response = exchange_client.create_exit_short_order(coin_pair,quantity)
         logger.debug("DEBUG")
         logger.debug(order_response)
