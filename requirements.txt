@@ -5,3 +5,5 @@ binance~=0.3
 google-cloud
 google-cloud-secret-manager
 firebase-admin
+asyncio
+Flask[async]
