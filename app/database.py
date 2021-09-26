@@ -274,6 +274,28 @@ class DatabaseClient:
 
     # * #######################################################################
     # * Function 
+    def set_order_sl(self, order_response):        
+        stop_loss_order_id = str(order_response["transactTime"])+"-"+order_response["symbol"]
+        db = firestore.Client()
+        entry_order = db.collection(u'stop_loss_order').document(stop_loss_order_id)
+        now = datetime.now()
+        now = preparation_client.format_time(now)     
+        try:
+            entry_order.set(
+                {
+                    u'order_response': order_response,
+                    u'time_now': now,
+                }
+            )
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            return False
+        return {
+            print(entry_order)
+        }
+
+    # * #######################################################################
+    # * Function 
     def set_account_overview(self, account_overview):
         db = firestore.Client()
         account_overview_id = "user"
