@@ -1,6 +1,6 @@
 from app import config
-import sys
 import logging
+import sys
 from binance.enums import *
 from binance.client import Client
 
