@@ -4,9 +4,10 @@ from app import exchange
 from app import database
 from app import controller
 from app import preparation
+from app import asynco
 import sys
 import logging
-from flask import request, render_template, jsonify, json
+from flask import request, jsonify, json
 
 # * ###########################################################################
 # * LOGGING INSTANTIATION RETURNING ON CONSOLE
@@ -38,6 +39,11 @@ controller_client = controller.ControllerClient()
 # * PREPARATION CLASS INSTANTIATION
 # * ###########################################################################
 preparation_client = preparation.PreparationClient()
+
+# * ###########################################################################
+# * ASYNC CLASS INSTANTIATION
+# * ###########################################################################
+asynco_client = asynco.AsyncoClient()
 
 # * ###########################################################################
 # * ROUTE TO HOME
@@ -122,116 +128,6 @@ def openorders():
         return jsonify(response)
 
 # * ###########################################################################
-# * ROUTE TO WEBHOOK
-# * ###########################################################################
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    data = {}
-    try:
-        data = json.loads(request.data)
-    except Exception as e:
-        logger.error("an exception occurred - {}".format(e))
-        return {"code": "error",
-                "message": "Unable to read webhook"}
-
-    if data['password'] != config_client.PASSWORD:
-        return {
-            "code": "error",
-            "message": "Nice try, invalid passphrase"
-        }
-
-    interval = data['interval']
-    coin_pair = data['ticker']
-    signal = data['signal']
-    stop_price = 0
-    if signal == "ENTRY LONG" or signal == "ENTRY SHORT":
-        stop_price = data['stopprice']
-        entry_price = data['entryprice']
-        usdt_balance = controller_client.get_usdt_balance()
-        if signal == "ENTRY LONG":
-
-            sl_percent = round((1 - (stop_price / entry_price)), 4)
-            portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
-            quantity, coin_rate = controller_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            symbol_info = exchange_client.get_symbol_info(coin_pair)
-            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
-            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
-
-            trigger_condition = stop_price
-            stop_price = stop_price * 0.99
-            stop_price = preparation_client.rounding_exact_quantity(stop_price, rate_steps)
-            trigger_condition = preparation_client.rounding_exact_quantity(trigger_condition, rate_steps)
-            order_response = exchange_client.create_long_order(quantity,coin_pair)
-            exchange_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
-            database_client.set_order(order_response)
-            open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
-            present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
-            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
-
-        elif signal == "ENTRY SHORT":
-
-            sl_percent = round(((stop_price / entry_price) - 1), 4)
-            portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
-            quantity, coin_rate = controller_client.convert_portion_size_to_quantity(coin_pair, portion_size)
-            symbol_info = exchange_client.get_symbol_info(coin_pair)
-            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
-            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
-
-            trigger_condition = stop_price
-            stop_price = stop_price * 1.01
-            stop_price = preparation_client.rounding_exact_quantity(stop_price, rate_steps)
-            trigger_condition = preparation_client.rounding_exact_quantity(trigger_condition, rate_steps)
-            order_response = exchange_client.create_short_order(quantity,coin_pair)
-            exchange_client.create_short_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
-            database_client.set_order(order_response)
-            open_date, side, entry_fee, present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
-            present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
-            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price, stop_price, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
-
-    elif signal == "EXIT LONG":
-        account_overview = exchange_client.get_margin_account()
-        open_orders = exchange_client.get_open_margin_orders()
-        quantity, order_id_list = preparation_client.check_is_sl_hit(coin_pair,open_orders,account_overview)
-        for order_id in order_id_list:
-            exchange_client.cancel_margin_order(coin_pair,order_id)
-        order_response = exchange_client.create_exit_long_order(coin_pair,quantity)
-        logger.debug("DEBUG")
-        logger.debug(order_response)
-        logger.debug("DEBUG")
-        if order_response != None:
-            database_client.set_exit_order(order_response)
-            database_client.set_closed_trade(order_response)
-
-    elif signal == "EXIT SHORT":
-        account_overview = exchange_client.get_margin_account()
-        open_orders = exchange_client.get_open_margin_orders()
-        quantity, order_id_list = preparation_client.check_is_sl_hit_short(coin_pair,open_orders,account_overview)
-        for order_id in order_id_list:
-            exchange_client.cancel_margin_order(coin_pair,order_id)
-        order_response = exchange_client.create_exit_short_order(coin_pair,quantity)
-        logger.debug("DEBUG")
-        logger.debug(order_response)
-        logger.debug("DEBUG")
-        if order_response != None:
-            database_client.set_exit_order(order_response)
-            database_client.set_closed_trade(order_response)
-    else:
-        return "An error occurred, can read the signal"
-
-    if order_response:
-        return {
-            "code": "success",
-            "message": "order executed"
-        }
-    else:
-        logger.error("order failed")
-
-        return {
-            "code": "error",
-            "message": "order failed"
-        }
-
-# * ###########################################################################
 # * ROUTE TO OPEN POSITIONS TABLE
 # * ###########################################################################
 @app.route('/recenttradehistory', methods=['GET', 'POST'])                                                                                  
@@ -263,3 +159,123 @@ def tradehistory():
                 trade_history_list.append(trade)
 
     return jsonify(trade_history_list)
+
+# * ###########################################################################
+# * ROUTE TO WEBHOOK
+# * ###########################################################################
+@app.route('/webhook', methods=['GET', 'POST'])                                                                                  
+async def get_data():
+    data = await asynco_client.main()
+    data = {}
+    try:
+        data = json.loads(request.data)
+    except Exception as e:
+        print("an exception occurred - {}".format(e))
+        return {"code": "error",
+                "message": "Unable to read webhook"}
+    # print(request.data)
+
+    if data['password'] != config_client.PASSWORD:
+        return {
+            "code": "error",
+            "message": "Nice try, invalid password"
+        }
+
+    interval = data['interval']
+    coin_pair = data['ticker']
+    signal = data['signal']
+    
+    #present price from the market
+    coin_price, btc_balance, btc_price, symbol_info, margin_account, open_margin_orders = await asynco_client.async_get_data(coin_pair)
+
+    if signal == "ENTRY LONG" or signal == "ENTRY SHORT":
+        stop_price_from_tv = data['stopprice']
+        entry_price_from_tv = data['entryprice']
+        usdt_balance = preparation_client.get_usdt_balance(btc_balance, btc_price)
+        if signal == "ENTRY LONG":
+            #prepare and open the long position
+            sl_percent = round((1 - (stop_price_from_tv / entry_price_from_tv)), 4)
+            portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
+            quantity = preparation_client.convert_portion_size_to_quantity(coin_price, portion_size)
+            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
+            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
+            order_response = await asynco_client.create_margin_order_entry_long(quantity, coin_pair)
+                        
+            #prepare and open the stop loss order
+            trigger_condition = stop_price_from_tv
+            stop_price = stop_price_from_tv * 0.999
+            stop_price = preparation_client.rounding_exact_quantity(stop_price, rate_steps)
+            trigger_condition = preparation_client.rounding_exact_quantity(trigger_condition, rate_steps)
+            order_response_sl = await asynco_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+            
+            #save the trade on the database
+            database_client.set_order(order_response)
+            open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
+            present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
+            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price_from_tv, stop_price_from_tv, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
+
+        elif signal == "ENTRY SHORT":
+
+            #prepare and open the long position
+            sl_percent  = round(((stop_price_from_tv / entry_price_from_tv) - 1), 4)
+            portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
+            quantity = preparation_client.convert_portion_size_to_quantity(coin_price, portion_size)
+            rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
+            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)
+            order_response = await asynco_client.create_margin_order_entry_short(quantity, coin_pair)
+                        
+            #prepare and open the stop loss order
+            trigger_condition = stop_price_from_tv
+            stop_price = stop_price_from_tv * 1.001
+            stop_price = preparation_client.rounding_exact_quantity(stop_price, rate_steps)
+            trigger_condition = preparation_client.rounding_exact_quantity(trigger_condition, rate_steps)
+            order_response_sl = await asynco_client.create_short_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+            
+            #save the trade on the database
+            database_client.set_order(order_response)
+            open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
+            present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
+            database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price_from_tv, stop_price_from_tv, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
+
+    elif signal == "EXIT LONG":
+        quantity, order_id_list = preparation_client.check_is_sl_hit(coin_pair,open_margin_orders,margin_account)
+        for order_id in order_id_list:
+            cancel_order_response = await asynco_client.cancel_margin_order(coin_pair,order_id)
+            logger.debug("DEBUG")
+            logger.debug(cancel_order_response)
+            logger.debug("DEBUG")
+        
+        order_response = await asynco_client.create_exit_long_order(coin_pair,quantity)
+         
+        if order_response != None:
+            database_client.set_exit_order(order_response)
+            database_client.set_closed_trade(order_response)
+    elif signal == "EXIT SHORT":
+        quantity, order_id_list = preparation_client.check_is_sl_hit_short(coin_pair,open_margin_orders,margin_account)
+        for order_id in order_id_list:
+            cancel_order_response = await asynco_client.cancel_margin_order(coin_pair,order_id)
+            logger.debug("DEBUG")
+            logger.debug(cancel_order_response)
+            logger.debug("DEBUG")
+        
+        order_response = await asynco_client.create_exit_short_order(coin_pair,quantity)
+         
+        if order_response != None:
+            database_client.set_exit_order(order_response)
+            database_client.set_closed_trade(order_response)
+    else:
+        return "An error occurred, can read the signal"
+    if order_response:
+        return {
+            "code": "success",
+            "message": "order executed"
+        }
+    else:
+        print("order failed")
+
+        return {
+            "code": "error",
+            "message": "order failed"
+
+        }
+    return jsonify(data)
