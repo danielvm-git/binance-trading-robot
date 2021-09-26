@@ -92,23 +92,27 @@ class PreparationClient:
                 tradable_assets.append(asset["asset"])
                 if position_size != 0:
                     open_positions.append(asset)
-            logger.debug("👇👇👇👇👇 - open_positions - 👇👇👇👇👇 ")        
-            logger.debug(open_positions)
-            logger.debug("👆👆👆👆👆 - open_positions - 👆👆👆👆👆 ")  
-            logger.debug("👇👇👇👇👇 - tradable_assets - 👇👇👇👇👇 ")        
-            logger.debug(tradable_assets)
-            logger.debug("👆👆👆👆👆 - tradable_assets - 👆👆👆👆👆 ") 
-            # self.set_tradable_assets(tradable_assets) 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return open_positions 
 
-    # * #######################################################################
-    # * Function 
+    # # * #######################################################################
+    # # * Function 
+    # def portion_size(self, account_balance, stop_limit_percentage):
+    #     risk_amount = account_balance * vault.RISK_FACTOR
+    #     portion_size = risk_amount / stop_limit_percentage
+    #     return round(portion_size, 2), risk_amount
     def portion_size(self, account_balance, stop_limit_percentage):
         risk_amount = account_balance * vault.RISK_FACTOR
         portion_size = risk_amount / stop_limit_percentage
-        return round(portion_size, 2), risk_amount
+        return portion_size, risk_amount
+    def convert_portion_size_to_quantity(self, coin_price, portion_size):
+        try:
+            quantity = portion_size / float(coin_price)
+            return quantity
+
+        except Exception as e:
+            print("an exception occurred - {}".format(e))
 
     # * #######################################################################
     # * Function 
@@ -215,3 +219,7 @@ class PreparationClient:
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return exit_date, exit_side, exit_fee
+
+    def get_usdt_balance(self, btc_balance, btc_rate):
+        usdt_balance = round(btc_balance * btc_rate, 0)
+        return int(usdt_balance)
