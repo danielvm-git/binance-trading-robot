@@ -269,6 +269,8 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.7
+ * New feature - Asynchronous calls to binance API
 * 0.0.6
  * Bugfix - Webhook not working properly after the previous update
 * 0.0.5
