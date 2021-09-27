@@ -143,7 +143,6 @@ class AsyncoClient:
             logger.debug("ℹ️ long_stop_loss_order:")
             logger.debug(order)
             logger.debug("⏭️ END OF create_long_stop_loss_order ⏮") 
-            await asyncio.sleep(5)
             await binance_client.close_connection()           
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -169,7 +168,6 @@ class AsyncoClient:
             logger.debug("ℹ️ short_stop_loss_order:")
             logger.debug(order)
             logger.debug("⏭️ END OF create_short_stop_loss_order ⏮")  
-            await asyncio.sleep(5) 
             await binance_client.close_connection()         
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
