@@ -32,32 +32,43 @@ class AsyncoClient:
         coin_price = 0
         btc_balance = 0
         btc_price = 0
+        symbol_ticker = None
+        symbol_ticker_BTC = None
         symbol_info = None
+        margin_account = None
+        open_margin_orders = None
         try:
+            logger.debug("⏭️ async_get_data ⏮️")
+            logger.debug("ℹ️ coin_pair:", coin_pair )
+
             symbol_ticker = await binance_client.get_symbol_ticker(symbol=coin_pair)
             coin_price = symbol_ticker['price']
+            logger.debug("ℹ️ symbol_ticker:", symbol_ticker )
+            logger.debug("ℹ️ coin_price:", coin_price )
+
+            symbol_info = await binance_client.get_symbol_info(symbol=coin_pair)
+            logger.debug("ℹ️ symbol_info:", symbol_info )
+            
             margin_account = await binance_client.get_margin_account()
             btc_balance = margin_account['totalNetAssetOfBtc']
-            symbol_ticker = await binance_client.get_symbol_ticker(symbol="BTCUSDT")
-            btc_price = symbol_ticker['price']
-            symbol_info = await binance_client.get_symbol_info(symbol=coin_pair)
             btc_balance = float(btc_balance)
+            logger.debug("ℹ️ margin_account:", margin_account )
+            logger.debug("ℹ️ btc_balance:", btc_balance )
+
+            symbol_ticker_BTC = await binance_client.get_symbol_ticker(symbol="BTCUSDT")
+            btc_price = symbol_ticker_BTC['price']
             btc_price = float(btc_price)
+            logger.debug("ℹ️ symbol_ticker_BTC:", symbol_ticker_BTC )
+            logger.debug("ℹ️ btc_price:", btc_price )
+
             open_margin_orders = await binance_client.get_open_margin_orders()
+            logger.debug("ℹ️ open_margin_orders:", open_margin_orders )
+            logger.debug("⏭️ async_get_data ⏮") 
+
             await binance_client.close_connection() 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return coin_price, btc_balance, btc_price, symbol_info, margin_account, open_margin_orders
-
-    async def get_usdt_balance(self):
-        binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
-        btc_balance = await binance_client.get_margin_account()['totalNetAssetOfBtc']
-        btc_balance = float(btc_balance)
-        btc_rate = await binance_client.get_symbol_ticker(symbol="BTCUSDT")['price']
-        btc_rate = float(btc_rate)
-        usdt_balance = round(btc_balance * btc_rate, 0)
-        await binance_client.close_connection() 
-        return int(usdt_balance)
 
     # * #######################################################################
     # * Function create_long_order using create_margin_order method from binance API
@@ -66,7 +77,12 @@ class AsyncoClient:
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         order = None
         try:
-            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)
+            logger.debug("⏭️ create_margin_order_entry_long ⏮️")
+            logger.debug("ℹ️ coin_pair:", coinpair )
+            logger.debug("ℹ️ quantity:", quantity)
+            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)                       
+            logger.debug(order)
+            logger.debug("⏭️ create_margin_order_entry_long ⏮") 
             await binance_client.close_connection() 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -79,7 +95,12 @@ class AsyncoClient:
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         order = None
         try:
-            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)  
+            logger.debug("⏭️ create_margin_order_entry_short ⏮️")
+            logger.debug("ℹ️ coin_pair:", coinpair )
+            logger.debug("ℹ️ quantity:", quantity)
+            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)                           
+            logger.debug(order)
+            logger.debug("⏭️ create_margin_order_entry_short ⏮") 
             await binance_client.close_connection()             
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -92,7 +113,14 @@ class AsyncoClient:
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         order = None
         try:
-            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC) 
+            logger.debug("⏭️ create_long_stop_loss_order ⏮️")
+            logger.debug("ℹ️ coin_pair:", coinpair )
+            logger.debug("ℹ️ quantity:", quantity) 
+            logger.debug("ℹ️ price:", price) 
+            logger.debug("ℹ️ trigger_condition:", trigger_condition)
+            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)                                       
+            logger.debug(order)
+            logger.debug("⏭️ create_long_stop_loss_order ⏮")     
             await binance_client.close_connection()           
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -105,7 +133,14 @@ class AsyncoClient:
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         order = None
         try:
-            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)      
+            logger.debug("⏭️ create_short_stop_loss_order ⏮️")
+            logger.debug("ℹ️ coin_pair:", coinpair )
+            logger.debug("ℹ️ quantity:", quantity) 
+            logger.debug("ℹ️ price:", price) 
+            logger.debug("ℹ️ trigger_condition:", trigger_condition) 
+            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)                            
+            logger.debug(order)
+            logger.debug("⏭️ create_short_stop_loss_order ⏮")    
             await binance_client.close_connection()         
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -118,7 +153,12 @@ class AsyncoClient:
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         try:
             #get open margin orders
-            order = await binance_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)
+            logger.debug("⏭️ cancel_margin_order ⏮️")
+            logger.debug("ℹ️ coin_pair:", coin_pair )
+            logger.debug("ℹ️ order_id:", order_id) 
+            order = await binance_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)              
+            logger.debug(order)
+            logger.debug("⏭️ cancel_margin_order ⏮")
             await binance_client.close_connection() 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -130,8 +170,13 @@ class AsyncoClient:
     async def create_exit_long_order(self, coinpair, quantity):
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         order = None
-        try:            
+        try:
+            logger.debug("⏭️ create_exit_long_order ⏮️")
+            logger.debug("ℹ️ coin_pair:", coinpair )
+            logger.debug("ℹ️ quantity:", quantity)            
             order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)    
+            logger.debug(order)
+            logger.debug("⏭️ create_exit_long_order ⏮")
             await binance_client.close_connection()       
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -144,7 +189,12 @@ class AsyncoClient:
         binance_client = AsyncClient(vault.API_KEY, vault.API_SECRET) 
         order = None
         try: 
-            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)      
+            logger.debug("⏭️ create_exit_short_order ⏮️")
+            logger.debug("ℹ️ coin_pair:", coinpair )
+            logger.debug("ℹ️ quantity:", quantity)
+            order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)         
+            logger.debug(order)
+            logger.debug("⏭️ create_exit_short_order ⏮️")    
             await binance_client.close_connection()   
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -159,6 +209,9 @@ class AsyncoClient:
         try:
             #get open margin orders
             open_margin_orders = await binance_client.get_open_margin_orders()
+            logger.debug("⏭️ get_open_margin_orders ⏮️")
+            logger.debug(open_margin_orders)
+            logger.debug("⏭️ get_open_margin_orders ⏮️")
             await binance_client.close_connection() 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
