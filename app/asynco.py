@@ -95,6 +95,7 @@ class AsyncoClient:
             logger.debug("ℹ️ margin_order_entry_long:")
             logger.debug(order)
             logger.debug("⏭️ END OF create_margin_order_entry_long ⏮") 
+            await asyncio.sleep(5)
             await binance_client.close_connection() 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -116,6 +117,7 @@ class AsyncoClient:
             logger.debug("ℹ️ margin_order_entry_short:")
             logger.debug(order)
             logger.debug("⏭️ END OF create_margin_order_entry_short ⏮") 
+            await asyncio.sleep(5)
             await binance_client.close_connection()             
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -140,7 +142,8 @@ class AsyncoClient:
             order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)                                       
             logger.debug("ℹ️ long_stop_loss_order:")
             logger.debug(order)
-            logger.debug("⏭️ END OF create_long_stop_loss_order ⏮")     
+            logger.debug("⏭️ END OF create_long_stop_loss_order ⏮") 
+            await asyncio.sleep(5)
             await binance_client.close_connection()           
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -165,7 +168,8 @@ class AsyncoClient:
             order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)                            
             logger.debug("ℹ️ short_stop_loss_order:")
             logger.debug(order)
-            logger.debug("⏭️ END OF create_short_stop_loss_order ⏮")    
+            logger.debug("⏭️ END OF create_short_stop_loss_order ⏮")  
+            await asyncio.sleep(5) 
             await binance_client.close_connection()         
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -208,6 +212,7 @@ class AsyncoClient:
             logger.debug("ℹ️ exit_long_order:")
             logger.debug(order)
             logger.debug("⏭️ END OF create_exit_long_order ⏮")
+            await asyncio.sleep(5)
             await binance_client.close_connection()       
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
@@ -228,7 +233,8 @@ class AsyncoClient:
             order = await binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)         
             logger.debug("ℹ️ exit_short_order:")
             logger.debug(order)
-            logger.debug("⏭️ END OF create_exit_short_order ⏮️")    
+            logger.debug("⏭️ END OF create_exit_short_order ⏮️")             
+            await asyncio.sleep(5) 
             await binance_client.close_connection()   
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
