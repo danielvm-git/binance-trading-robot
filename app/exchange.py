@@ -1,5 +1,6 @@
 from app import config
 import logging
+import time
 import sys
 from binance.enums import *
 from binance.client import Client
@@ -171,6 +172,95 @@ class ExchangeClient:
         order = None
         try: 
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)      
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+
+    def sync_get_data(self, coin_pair): 
+        coin_price = 0
+        btc_balance = 0
+        btc_price = 0
+        symbol_ticker = None
+        symbol_ticker_BTC = None
+        symbol_info = None
+        margin_account = None
+        open_margin_orders = None
+        try:
+            logger.debug("⏭️ BEGIN OF sync_get_data ⏮️")
+            logger.debug("ℹ️ coin_pair:")
+            logger.debug(coin_pair)
+
+            symbol_ticker = self.binance_client.get_symbol_ticker(symbol=coin_pair)
+            coin_price = symbol_ticker['price']
+            logger.debug("ℹ️ symbol_ticker:")
+            logger.debug(symbol_ticker)
+            logger.debug("ℹ️ coin_price:")
+            logger.debug(coin_price)
+
+            symbol_info = self.binance_client.get_symbol_info(symbol=coin_pair)
+            logger.debug("ℹ️ symbol_info:")
+            logger.debug(symbol_info)
+            
+            margin_account = self.binance_client.get_margin_account()
+            btc_balance = margin_account['totalNetAssetOfBtc']
+            btc_balance = float(btc_balance)
+            logger.debug("ℹ️ margin_account:")
+            logger.debug(margin_account)
+            logger.debug("ℹ️ btc_balance:")
+            logger.debug(btc_balance)
+
+            symbol_ticker_BTC = self.binance_client.get_symbol_ticker(symbol="BTCUSDT")
+            btc_price = symbol_ticker_BTC['price']
+            btc_price = float(btc_price)
+            logger.debug("ℹ️ symbol_ticker_BTC:")
+            logger.debug(symbol_ticker_BTC)
+            logger.debug("ℹ️ btc_price:")
+            logger.debug(btc_price)
+
+            open_margin_orders = self.binance_client.get_open_margin_orders()
+            logger.debug("ℹ️ open_margin_orders:")
+            logger.debug(open_margin_orders)
+            logger.debug("⏭️ END OF sync_get_data ⏮") 
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return coin_price, btc_balance, btc_price, symbol_info, margin_account, open_margin_orders
+
+    # * #######################################################################
+    # * Function create_long_order using create_margin_order method from binance API
+    # * https://bit.ly/binanceCode#binance.client.Client.create_margin_order
+    def create_margin_order_entry_long(self, quantity, coinpair):
+        order = None
+        try:
+            logger.debug("⏭️ BEGIN OF create_margin_order_entry_long ⏮️")
+            logger.debug("ℹ️ coin_pair:")
+            logger.debug(coinpair)
+            logger.debug("ℹ️ quantity:")
+            logger.debug(quantity)
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)                       
+            logger.debug("ℹ️ margin_order_entry_long:")
+            logger.debug(order)
+            time.sleep(5)
+            logger.debug("⏭️ END OF create_margin_order_entry_long ⏮") 
+        except Exception as e:
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+        return order
+
+    # * #######################################################################
+    # * Function create_short_order using create_margin_order method from binance API
+    # * https://bit.ly/binanceCode#binance.client.Client.create_margin_order
+    def create_margin_order_entry_short(self, quantity, coinpair):
+        order = None
+        try:
+            logger.debug("⏭️ BEGIN OF create_margin_order_entry_short ⏮️")
+            logger.debug("ℹ️ coin_pair:")
+            logger.debug(coinpair)
+            logger.debug("ℹ️ quantity:")
+            logger.debug(quantity)
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)                           
+            logger.debug("ℹ️ margin_order_entry_short:")
+            logger.debug(order)
+            time.sleep(5)
+            logger.debug("⏭️ END OF create_margin_order_entry_short ⏮") 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
         return order
