@@ -129,7 +129,6 @@ class PreparationClient:
     # * #######################################################################
     # * Function     # Round the quantity or price range, with the actual allowed decimals
     def rounding_exact_quantity(self, quantity, step_size):
-        print("stepSize", step_size)
         step_size = int(math.log10(1 / float(step_size)))
         quantity = math.floor(float(quantity) * 10 ** step_size) / 10 ** step_size
         quantity = "{:0.0{}f}".format(float(quantity), step_size)
