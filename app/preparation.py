@@ -136,10 +136,9 @@ class PreparationClient:
     
     # * #######################################################################
     # * Function 
-    def check_is_sl_hit(self, coin_pair, open_orders, account_overview):
+    def check_is_sl_hit(self, coin_pair, open_orders, account_overview, base_asset):
         order_id_list = []
         quantity = 0
-        asset = coin_pair.replace("USDT","")
         try:
             # TODO test when there is no open order
             open_positions = self.get_open_positions(account_overview)            
@@ -147,7 +146,7 @@ class PreparationClient:
                 if open_order["symbol"] == coin_pair:
                     order_id_list.append(open_order["orderId"])                    
             for open_position in open_positions:
-                if open_position["asset"] == asset:
+                if open_position["asset"] == base_asset:
                     quantity = quantity + float(open_position["netAsset"])           
         except Exception as e:
                 logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
