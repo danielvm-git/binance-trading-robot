@@ -193,7 +193,10 @@ async def get_data():
     
     #present price from the market
     coin_price, btc_balance, btc_price, symbol_info, margin_account, open_margin_orders = await asynco_client.async_get_data(coin_pair)
-
+    quote_asset = symbol_info['quoteAsset']
+    base_asset = symbol_info['baseAsset']
+    balance = ""
+    rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
     if coin_price != 0:
         if signal == "ENTRY LONG" or signal == "ENTRY SHORT":
             stop_price_from_tv = data['stopprice']
@@ -206,14 +209,16 @@ async def get_data():
             usdt_balance = preparation_client.get_usdt_balance(btc_balance, btc_price)
             logger.debug("ℹ️ usdt_balance:")   
             logger.debug(usdt_balance)     
-            
+            if quote_asset == "USDT":
+                balance = usdt_balance
+            else:
+                balance = btc_balance
             if signal == "ENTRY LONG":
                 #prepare and open the long position
                 sl_percent = round((1 - (stop_price_from_tv / entry_price_from_tv)), 4)
                 logger.debug("ℹ️ sl_percent:")  
                 logger.debug(sl_percent)    
-
-                portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
+                portion_size, risk_amount = preparation_client.portion_size(balance, sl_percent)
                 logger.debug("ℹ️ portion_size:")
                 logger.debug(portion_size)     
                 logger.debug("ℹ️ risk_amount:")     
@@ -223,7 +228,6 @@ async def get_data():
                 logger.debug("ℹ️ unrounded quantity:")  
                 logger.debug(quantity)     
 
-                rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
                 logger.debug("ℹ️ rate_steps:") 
                 logger.debug(rate_steps) 
                 logger.debug("ℹ️ quantity_steps:")  
@@ -261,7 +265,7 @@ async def get_data():
                 database_client.set_order(order_response)
                 open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
                 present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
-                database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price_from_tv, stop_price_from_tv, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
+                database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,balance,risk_amount,portion_size,entry_price_from_tv, stop_price_from_tv, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
 
             elif signal == "ENTRY SHORT":
 
@@ -270,7 +274,7 @@ async def get_data():
                 logger.debug("ℹ️ sl_percent:")  
                 logger.debug(sl_percent)     
 
-                portion_size, risk_amount = preparation_client.portion_size(usdt_balance, sl_percent)
+                portion_size, risk_amount = preparation_client.portion_size(balance, sl_percent)
                 logger.debug("ℹ️ portion_size:")
                 logger.debug(portion_size)     
                 logger.debug("ℹ️ risk_amount:")     
@@ -280,7 +284,7 @@ async def get_data():
                 logger.debug("ℹ️ unrounded quantity:")  
                 logger.debug(quantity)    
 
-                rate_steps, quantity_steps = preparation_client.get_tick_and_step_size(symbol_info)
+                
                 logger.debug("ℹ️ rate_steps:") 
                 logger.debug(rate_steps) 
                 logger.debug("ℹ️ quantity_steps:")  
@@ -318,69 +322,51 @@ async def get_data():
                 database_client.set_order(order_response)
                 open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
                 present_price = preparation_client.rounding_exact_quantity(present_price, rate_steps)
-                database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,usdt_balance,risk_amount,portion_size,entry_price_from_tv, stop_price_from_tv, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
+                database_client.set_active_trade(coin_pair,open_date,interval,side,sl_percent,balance,risk_amount,portion_size,entry_price_from_tv, stop_price_from_tv, present_price, entry_fee, rate_steps, quantity_steps, dollar_size_entry)
 
         elif signal == "EXIT LONG":
-            quantity, order_id_list = preparation_client.check_is_sl_hit(coin_pair,open_margin_orders,margin_account)
+            quantity, order_id_list = preparation_client.check_is_sl_hit(coin_pair,open_margin_orders,margin_account,base_asset)
             logger.debug("ℹ️ quantity:")
             logger.debug(quantity)
             logger.debug("ℹ️ order_id_list:")
             logger.debug(order_id_list)
-            if len(order_id_list) == 0:
-                logger.debug("ℹ️ coin_pair:")  
-                logger.debug(coin_pair)  
-                logger.debug("🔥 message: there is no position to exit on this pair🔥")
-                return {
-                    "code": "error",
-                    "pair": coin_pair,
-                    "message": "there is no position to exit on this pair"
-                }
-            else:
+            if len(order_id_list) != 0:
                 for order_id in order_id_list:
                     logger.debug("ℹ️ order_id:") 
                     logger.debug(order_id) 
                     cancel_order_response = await asynco_client.cancel_margin_order(coin_pair,order_id)
                     logger.debug("ℹ️ cancel_order_response:")
                     logger.debug(cancel_order_response)
-                
-                order_response = await asynco_client.create_exit_long_order(coin_pair,quantity)
-                logger.debug("ℹ️ order_response:")  
-                logger.debug(order_response)  
-                logger.debug("ℹ️ END OF EXIT LONG")
-                
-                if order_response != None:
-                    database_client.set_exit_order(order_response)
-                    database_client.set_closed_trade(order_response)
+            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)    
+            order_response = await asynco_client.create_exit_long_order(coin_pair,quantity)
+            logger.debug("ℹ️ order_response:")  
+            logger.debug(order_response)  
+            logger.debug("ℹ️ END OF EXIT LONG")
+            
+            if order_response != None:
+                database_client.set_exit_order(order_response)
+                database_client.set_closed_trade(order_response)
         elif signal == "EXIT SHORT":
-            quantity, order_id_list = preparation_client.check_is_sl_hit_short(coin_pair,open_margin_orders,margin_account)
+            quantity, order_id_list = preparation_client.check_is_sl_hit_short(coin_pair,open_margin_orders,margin_account,base_asset)
             logger.debug("ℹ️ quantity:")
             logger.debug(quantity)
             logger.debug("ℹ️ order_id_list:")
             logger.debug(order_id_list)
-            if len(order_id_list) == 0:
-                logger.debug("ℹ️ coin_pair:")  
-                logger.debug(coin_pair)   
-                logger.debug("🔥 message: there is no position to exit on this pair🔥")
-                return {
-                    "code": "error",
-                    "pair": coin_pair,
-                    "message": "there is no position to exit on this pair"
-                }
-            else:
+            if len(order_id_list) != 0:
                 for order_id in order_id_list:
                     logger.debug("ℹ️ order_id:") 
                     logger.debug(order_id) 
                     cancel_order_response = await asynco_client.cancel_margin_order(coin_pair,order_id)
                     logger.debug("ℹ️ cancel_order_response:")
-                    logger.debug(cancel_order_response)
-                
-                order_response = await asynco_client.create_exit_short_order(coin_pair,quantity)
-                logger.debug("ℹ️ order_response:")  
-                logger.debug(order_response)   
-                logger.debug("ℹ️ END OF EXIT SHORT")
-                if order_response != None:
-                    database_client.set_exit_order(order_response)
-                    database_client.set_closed_trade(order_response)
+                    logger.debug(cancel_order_response)            
+            quantity = preparation_client.rounding_exact_quantity(quantity, quantity_steps)     
+            order_response = await asynco_client.create_exit_short_order(coin_pair,quantity)
+            logger.debug("ℹ️ order_response:")  
+            logger.debug(order_response)   
+            logger.debug("ℹ️ END OF EXIT SHORT")
+            if order_response != None:
+                database_client.set_exit_order(order_response)
+                database_client.set_closed_trade(order_response)
         else:
             logger.debug("ℹ️ signal:")  
             logger.debug(signal)  
