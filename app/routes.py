@@ -163,7 +163,7 @@ def tradehistory():
 # * ###########################################################################
 # * ROUTE TO WEBHOOK
 # * ###########################################################################
-@app.route('/webhooktest', methods=['GET', 'POST'])                                                                                  
+@app.route('/webhook', methods=['GET', 'POST'])                                                                                  
 async def get_data():
     data = {}
     try:
@@ -405,7 +405,7 @@ async def get_data():
 # * ###########################################################################
 # * ROUTE TO WEBHOOK
 # * ###########################################################################
-@app.route('/webhook', methods=['GET', 'POST'])                                                                                  
+@app.route('/webhooktest', methods=['GET', 'POST'])                                                                                  
 def get_data_webhook(): 
     data = {}
     try:
