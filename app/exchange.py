@@ -58,6 +58,8 @@ class ExchangeClient:
             margin_trades = self.binance_client.get_margin_trades(symbol=symbol)
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 symbol 🔥")
+            logger.exception(symbol)
         return margin_trades 
 
     # * #######################################################################
@@ -69,6 +71,10 @@ class ExchangeClient:
             self.binance_client.cancel_margin_order(symbol=coin_pair,orderId=order_id)
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 coin_pair 🔥")
+            logger.exception(coin_pair)
+            logger.exception("🔥 order_id 🔥")
+            logger.exception(order_id)
         return {
             logger.debug("Order Canceled: ", order_id)
         }  
@@ -85,6 +91,8 @@ class ExchangeClient:
                 price = price_index["price"]
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 symbol 🔥")
+            logger.exception(symbol)
         return price
 
     # * #######################################################################
@@ -96,6 +104,8 @@ class ExchangeClient:
             symbol_info = self.binance_client.get_symbol_info(symbol)
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 symbol 🔥")
+            logger.exception(symbol)
         return symbol_info
     
     # * #######################################################################
@@ -108,6 +118,8 @@ class ExchangeClient:
             symbol_ticker = self.binance_client.get_symbol_ticker(symbol=symbol)
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 symbol 🔥")
+            logger.exception(symbol)
         return symbol_ticker
 
     # * #######################################################################
@@ -119,6 +131,10 @@ class ExchangeClient:
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
         return order
 
     # * #######################################################################
@@ -129,7 +145,11 @@ class ExchangeClient:
         try:
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="MARGIN_BUY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)              
         except Exception as e:
-            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 AN EXCEPTION OCURRED 🔥")
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair) 
         return order
     
     # * #######################################################################
@@ -141,6 +161,14 @@ class ExchangeClient:
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)             
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
+            logger.exception("🔥 price 🔥")
+            logger.exception(price)
+            logger.exception("🔥 trigger_condition 🔥")
+            logger.exception(trigger_condition)
         return order
     
     # * #######################################################################
@@ -152,6 +180,14 @@ class ExchangeClient:
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)             
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
+            logger.exception("🔥 price 🔥")
+            logger.exception(price)
+            logger.exception("🔥 trigger_condition 🔥")
+            logger.exception(trigger_condition)
         return order
 
     # * #######################################################################
@@ -163,6 +199,10 @@ class ExchangeClient:
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_SELL, type=ORDER_TYPE_MARKET)           
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
         return order
 
     # * #######################################################################
@@ -174,6 +214,10 @@ class ExchangeClient:
             order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, sideEffectType="AUTO_REPAY", side=SIDE_BUY, type=ORDER_TYPE_MARKET)      
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
         return order
 
     def sync_get_data(self, coin_pair): 
@@ -223,6 +267,8 @@ class ExchangeClient:
             logger.debug("⏭️ END OF sync_get_data ⏮") 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 coin_pair 🔥")
+            logger.exception(coin_pair)
         return coin_price, btc_balance, btc_price, symbol_info, margin_account, open_margin_orders
 
     # * #######################################################################
@@ -243,6 +289,10 @@ class ExchangeClient:
             logger.debug("⏭️ END OF create_margin_order_entry_long ⏮") 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
         return order
 
     # * #######################################################################
@@ -263,4 +313,8 @@ class ExchangeClient:
             logger.debug("⏭️ END OF create_margin_order_entry_short ⏮") 
         except Exception as e:
             logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
+            logger.exception("🔥 quantity 🔥")
+            logger.exception(quantity)
+            logger.exception("🔥 coinpair 🔥")
+            logger.exception(coinpair)
         return order
