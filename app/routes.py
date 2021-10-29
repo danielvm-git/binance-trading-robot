@@ -190,6 +190,9 @@ async def get_data():
     logger.debug(coin_pair)
     logger.debug("ℹ️ signal:")
     logger.debug(signal)
+
+    numRetries = 10
+    currentTry = 0
     
     #present price from the market
     coin_price, btc_balance, btc_price, symbol_info, margin_account, open_margin_orders = await asynco_client.async_get_data(coin_pair)
@@ -256,10 +259,24 @@ async def get_data():
                 logger.debug("ℹ️ rounded stop_price:")
                 logger.debug(stop_price)
 
-                order_response_sl = await asynco_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
-                logger.debug("ℹ️ order_response_sl:")
-                logger.debug(order_response_sl)
-                logger.debug("ℹ️ END OF ENTRY LONG")
+                while currentTry < numRetries:
+                    try:
+                        logger.debug("ℹ️ coin_pair:")
+                        logger.debug(coin_pair)
+                        logger.debug("ℹ️ quantity:")
+                        logger.debug(quantity)
+                        logger.debug("ℹ️ stop_price:")
+                        logger.debug(stop_price)
+                        logger.debug("ℹ️ trigger_condition:")
+                        logger.debug(trigger_condition)
+                        order_response_sl = exchange_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+                        logger.debug("ℹ️ order_response_sl:")
+                        logger.debug(order_response_sl)
+                        logger.debug("ℹ️ END OF ENTRY LONG")
+                        break
+                    except Exception as e:
+                        logger.debug(e)
+                        currentTry += 1
                 
                 #save the trade on the database
                 database_client.set_order(order_response)
@@ -313,10 +330,16 @@ async def get_data():
                 logger.debug("ℹ️ rounded stop_price:")
                 logger.debug(stop_price)
                 
-                order_response_sl = await asynco_client.create_short_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
-                logger.debug("ℹ️ order_response_sl:")
-                logger.debug(order_response_sl)
-                logger.debug("ℹ️ END OF ENTRY SHORT")
+                while currentTry < numRetries:
+                    try:
+                        order_response_sl = exchange_client.create_short_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+                        logger.debug("ℹ️ order_response_sl:")
+                        logger.debug(order_response_sl)
+                        logger.debug("ℹ️ END OF ENTRY SHORT")
+                        break
+                    except Exception as e:
+                        logger.debug(e)
+                        currentTry += 1
                 
                 #save the trade on the database
                 database_client.set_order(order_response)
@@ -493,12 +516,18 @@ def get_data_webhook():
                 logger.debug(trigger_condition) 
                 logger.debug("ℹ️ rounded stop_price:")
                 logger.debug(stop_price)
-
-                order_response_sl = exchange_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
-                logger.debug("ℹ️ order_response_sl:")
-                logger.debug(order_response_sl)
-                logger.debug("ℹ️ END OF ENTRY LONG")
-                
+                numRetries = 10;
+                currentTry = 0;
+                while currentTry < numRetries:
+                    try:
+                        order_response_sl = exchange_client.create_long_stop_loss_order(coin_pair,quantity,stop_price,trigger_condition)
+                        logger.debug("ℹ️ order_response_sl:")
+                        logger.debug(order_response_sl)
+                        logger.debug("ℹ️ END OF ENTRY LONG")
+                        break
+                    except Exception as e:
+                        logger.debug(e)
+                        currentTry += 1
                 #save the trade on the database
                 database_client.set_order(order_response)
                 open_date,side,entry_fee,present_price, dollar_size_entry = preparation_client.get_date_and_fees(order_response)
