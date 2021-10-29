@@ -269,6 +269,8 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.9
+ * Fix on the mechanism to handle simultaneous calls to the webhook
 * 0.0.8
  * New feature - Ability to trade on BTC pairs
 * 0.0.7
