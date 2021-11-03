@@ -269,6 +269,10 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.10
+  *  New feature - Colored icons from [CryptoIcons](https://github.com/monzanifabio/cryptoicons) project
+* 0.0.9
+  * Fix on the mechanism to handle simultaneous calls to the webhook
 * 0.0.8
  * New feature - Ability to trade on BTC pairs
 * 0.0.7
@@ -312,6 +316,7 @@ if you want to buy me a coffee to accompany me on the programming nights I will 
 
 ## Acknowledgments
 Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made on the original code that I used here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
+Thanks [@amonzanifabio](https://github.com/monzanifabio) for the beautiful work on the [CryptoFonts](https://www.cryptofonts.com/) & [CryptoIcons](https://github.com/monzanifabio/cryptoicons) projects
 
 <!-- Markdown link & img dfn's -->
 
