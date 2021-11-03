@@ -77,7 +77,8 @@ def openpositions():
                 has_stop_loss = "<i class=\"far fa-thumbs-up\"></i>"
             else:
                 has_stop_loss = "<i class=\"far fa-ban\"></i>"    
-            icon = "<i class=\"cf cf-"+asset.lower()+"\"></i>"
+            # icon = "<i class=\"cf cf-"+asset.lower()+"\"></i>"
+            icon = "<img src=\"icons/"+asset.lower()+".svg\" height=\"16\" width=\"16\"/>"
             
             data.append({
                 'asset': asset ,
