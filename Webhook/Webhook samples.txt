@@ -35,3 +35,38 @@ https://binance-trading-robot.web.app/webhook
 "ticker": "{{ticker}}",
 "password": "your_password"
 }
+
+# * #######################################################################
+# * NEW INDICATOR WITH PROTECTION
+
+{
+"signal": "ENTRY LONG",
+"interval": {{interval}},
+"ticker": "{{ticker}}",
+"entryprice": {{plot_16}},
+"stopprice": {{plot_17}},
+"password": "your_password"
+}
+
+{
+"signal": "ENTRY SHORT",
+"interval": {{interval}},
+"ticker": "{{ticker}}",
+"entryprice": {{plot_16}},
+"stopprice": {{plot_17}},
+"password": "your_password"
+}
+
+{
+"signal": "EXIT LONG",
+"interval": {{interval}},
+"ticker": "{{ticker}}",
+"password": "your_password"
+}
+
+{
+"signal": "EXIT SHORT",
+"interval": {{interval}},
+"ticker": "{{ticker}}",
+"password": "your_password"
+}
