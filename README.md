@@ -12,7 +12,7 @@ BEFORE YOU START WATCH:
 
 * THIS VIDEO 2ND: [video](https://www.youtube.com/watch?v=WwZDwYz-3AQ)
 
-This is the same [amfchef's](https://github.com/amfchef) binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
+This is a modified [amfchef's](https://github.com/amfchef) binance-trading-robot running on Firebase and Cloud Run hosting a Flask server using Docker.
 I followed this [video](https://www.youtube.com/watch?v=t5EfITuFD9w) and migrated amfchef's [code](https://github.com/amfchef/binance-trading-bot) to run on [Firebase](https://firebase.google.com/) 
 
 IMPORTANT:It was not well tested on BTC pairs. Runned just a feel tests as I don't trade those pair. Any help is welcome.
@@ -227,22 +227,51 @@ Go to [Google Cloud Console](https://console.cloud.google.com/) -> Cloud Run and
 
 #### Local Test
  * You can also run the firebase server and test locally. The result of the command bellow will be a localhost address
- ```bash
+```bash
 firebase serve
 ```
 #### Cloud Run Test
  * Create the build and deploy is again. The result of the deploy command bellow will be an internet address to your site
- ```bash
+```bash
 gcloud builds submit --tag gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
 ``` 
- ```bash
+```bash
 gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
 ``` 
 #### Firebase Test
  * Create the build and deploy is again. The result of the deploy command bellow will be an internet address to your site
- ```bash
+```bash
 firebase deploy --only hosting
 ``` 
+
+## Updating the code
+ * Make a copy of the present folder
+
+ * Move to the project folder
+ 
+ * Pull the new code 
+```bash
+git pull https://github.com/danielvm-git/binance-trading-robot
+``` 
+ * Rewrite your project data 
+     * Get the config.py , .firebaserc, firebase.json on your older folder and copy the information about your project that are inside those files on the new ones (do not overwrite the new files, just update the information inside them)
+
+ * Build the system
+```bash
+gcloud builds submit --tag gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
+```
+
+ * Deploy the new functions on Cloud Run 
+```bash
+gcloud run deploy --image gcr.io/<put the name of your Google Cloud PROJECT here>/<put the name of your Cloud Run FUNCTION here>
+```
+
+ * Deploy the application on Firebase  
+```bash
+firebase deploy --only hosting
+``` 
+  * Get the URL returned on the last command and your are good to go!
+ 
 ## Help
 ### Troubleshooting
 * if the docker doesn't run try cleaning minikube and starting the service again
@@ -270,22 +299,22 @@ gcloud config set run/region us-central1
 
 ## Version History
 * 0.0.10
-  *  New feature - Colored icons from [CryptoIcons](https://github.com/monzanifabio/cryptoicons) project
+  *  New feature - Colored icons from [CryptoIcons](https://github.com/monzanifabio/cryptoicons) & [CryptoLogos](https://cryptologos.cc/)
 * 0.0.9
   * Fix on the mechanism to handle simultaneous calls to the webhook
 * 0.0.8
- * New feature - Ability to trade on BTC pairs
+  * New feature - Ability to trade on BTC pairs
 * 0.0.7
- * New feature - Asynchronous calls to binance API
+  * New feature - Asynchronous calls to binance API
 * 0.0.6
- * Bugfix - Webhook not working properly after the previous update
+  * Bugfix - Webhook not working properly after the previous update
 * 0.0.5
- * New feature - MM's spreadsheet helper
- * Layout - new field "Side" on Open Positions table 
- * Bugfix - fix for value calculation on Stop Loss and Stop Loss trigger condition
- * Refactory - new "MVC" like file structure   
+  * New feature - MM's spreadsheet helper
+  * Layout - new field "Side" on Open Positions table 
+  * Bugfix - fix for value calculation on Stop Loss and Stop Loss trigger condition
+  * Refactory - new "MVC" like file structure   
 * 0.0.4
- * New feature - Entry and Exit shorts
+  * New feature - Entry and Exit shorts
 * 0.0.3
   * Layout enhancements
 * 0.0.2
@@ -301,10 +330,9 @@ gcloud config set run/region us-central1
 This project is licensed under the MIT License - see the LICENSE.md file for details 
  
 ## Authors
-
-[@amfchef](https://github.com/amfchef) - Original code
+[@danielvm-git](https://github.com/danielvm-git) - Author
  
-[@danielvm-git](https://github.com/danielvm-git) - Contributor
+[@amfchef](https://github.com/amfchef) - Inspirational code
  
 ## Support
 if you want to buy me a coffee to accompany me on the programming nights I will always be grateful
@@ -316,12 +344,15 @@ if you want to buy me a coffee to accompany me on the programming nights I will 
 
 ## Acknowledgments
 Thanks a lot for all the good job that [@amfchef](https://github.com/amfchef) made on the original code that I used here and also for all the [Discord](https://discord.com/invite/u2FcPxy) group folks for their support
-Thanks [@amonzanifabio](https://github.com/monzanifabio) for the beautiful work on the [CryptoFonts](https://www.cryptofonts.com/) & [CryptoIcons](https://github.com/monzanifabio/cryptoicons) projects
+
+ Thanks [@amonzanifabio](https://github.com/monzanifabio) for the beautiful work on the [CryptoFonts](https://www.cryptofonts.com/) & [CryptoIcons](https://github.com/monzanifabio/cryptoicons) projects
+
+ Thanks [CryptoLogos](https://cryptologos.cc/) for the amazing job on the missing logos
 
 <!-- Markdown link & img dfn's -->
 
-[version-image]: https://img.shields.io/badge/Version-0.0.3-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://img.shields.io/badge/version-0.0.3-green
+[version-image]: https://img.shields.io/badge/Version-0.0.10-brightgreen?style=for-the-badge&logo=appveyor
+[version-url]: https://img.shields.io/badge/version-0.0.10-green
 [Frontend-image]: https://img.shields.io/badge/Frontend-Bootstrap-blue?style=for-the-badge
 [Frontend-url]: https://img.shields.io/badge/Frontend-Bootstrap-blue?style=for-the-badge
 [Backend-image]: https://img.shields.io/badge/Backend-Python-important?style=for-the-badge
