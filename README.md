@@ -298,6 +298,10 @@ gcloud config set run/region us-central1
 5. Create a new Pull Request
 
 ## Version History
+* 0.0.12
+  * Fix on BUSD transactions
+* 0.0.11
+  * Fix on the mechanism to handle simultaneous calls to the webhook
 * 0.0.10
   *  New feature - Colored icons from [CryptoIcons](https://github.com/monzanifabio/cryptoicons) & [CryptoLogos](https://cryptologos.cc/)
 * 0.0.9
