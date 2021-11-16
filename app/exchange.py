@@ -158,17 +158,9 @@ class ExchangeClient:
     def create_long_stop_loss_order(self, coinpair, quantity, price, trigger_condition ):
         order = None
         try:
-            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)             
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_SELL, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC, sideEffectType="AUTO_REPAY")             
         except Exception as e:
-            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
-            logger.exception("🔥 coinpair 🔥")
-            logger.exception(coinpair)
-            logger.exception("🔥 quantity 🔥")
-            logger.exception(quantity)
-            logger.exception("🔥 price 🔥")
-            logger.exception(price)
-            logger.exception("🔥 trigger_condition 🔥")
-            logger.exception(trigger_condition)
+            raise e
         return order
     
     # * #######################################################################
@@ -177,17 +169,9 @@ class ExchangeClient:
     def create_short_stop_loss_order(self, coinpair, quantity, price, trigger_condition ):
         order = None
         try:
-            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC)             
+            order = self.binance_client.create_margin_order(symbol=coinpair, quantity=quantity, price=price, stopPrice=trigger_condition, side=SIDE_BUY, type=ORDER_TYPE_STOP_LOSS_LIMIT, timeInForce=TIME_IN_FORCE_GTC, sideEffectType="AUTO_REPAY")             
         except Exception as e:
-            logger.exception("🔥 AN EXCEPTION OCURRED 🔥") 
-            logger.exception("🔥 coinpair 🔥")
-            logger.exception(coinpair)
-            logger.exception("🔥 quantity 🔥")
-            logger.exception(quantity)
-            logger.exception("🔥 price 🔥")
-            logger.exception(price)
-            logger.exception("🔥 trigger_condition 🔥")
-            logger.exception(trigger_condition)
+            raise e
         return order
 
     # * #######################################################################
